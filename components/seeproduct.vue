@@ -14,6 +14,7 @@
               <h5 class="card-title">{{ product.name }}</h5>
               <p class="card-text" v-html="product.description"></p>
               <p class="card-text" v-html="product.price_html"></p>
+
               
             </div>
           </div>
