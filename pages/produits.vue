@@ -2,7 +2,6 @@
   <div id="app">
     <div
       v-if="!registerActive"
-      v-bind:class="{ error: emptyFields }"
     >
       <a href="#" @click="registerActive = !registerActive">
         Ajouter un produit</a
@@ -20,7 +19,6 @@
 </template>
 
 <script>
-import axios from "axios";
 import addproduct from "@/components/addproduct";
 import seeproduct from "@/components/seeproduct";
 
