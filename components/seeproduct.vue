@@ -16,6 +16,10 @@
               <p class="card-text" v-html="product.price_html"></p>
 
               <button @click="deleteProduct(product.id)">supp</button>
+              <button @click="showEditComponent(product.id)">edit</button>
+              <div v-show="showEdit">
+                <editProduct :idEditProduct="idEditProduct" />
+              </div>
             </div>
           </div>
         </div>
@@ -26,12 +30,17 @@
 
 <script>
 import axios from "axios";
-import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
+import editProduct from "@/components/editProduct";
 export default {
+  components: {
+    editProduct,
+  },
   data() {
     return {
       products: [],
       token: localStorage.getItem("token"),
+      showEdit: false,
+      idEditProduct: "",
     };
   },
   mounted() {
@@ -55,11 +64,15 @@ export default {
             Authorization: "Bearer " + this.token,
           },
         })
-        .then(res => console.log(res))
+        .then((res) => console.log(res))
         .catch((error) => {
           console.log(error);
         });
-     
+    },
+    // EDIT PRODUCT
+    showEditComponent(id) {
+      this.showEdit = !this.showEdit;
+      this.idEditProduct = id;
     },
   },
 };
