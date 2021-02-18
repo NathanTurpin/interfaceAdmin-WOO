@@ -1,5 +1,5 @@
 <template>
-  <div >
+  <div>
     <section id="app" class="content">
       <div v-for="(product, idProduct) in products" :key="idProduct">
         <div class="col">
@@ -15,7 +15,7 @@
               <p class="card-text" v-html="product.description"></p>
               <p class="card-text" v-html="product.price_html"></p>
 
-              
+              <button @click="deleteProduct(product.id)">supp</button>
             </div>
           </div>
         </div>
@@ -26,18 +26,16 @@
 
 <script>
 import axios from "axios";
-
+import WooCommerceRestApi from "@woocommerce/woocommerce-rest-api";
 export default {
   data() {
     return {
       products: [],
-      token: localStorage.getItem('token'),
-      
+      token: localStorage.getItem("token"),
     };
   },
   mounted() {
     this.getProduct();
-
   },
   methods: {
     // AFFICHE LES PRODUITS
@@ -47,8 +45,22 @@ export default {
         .then((response) => (this.products = response.data))
         .catch((error) => console.log(error));
     },
-
-   
+    // DELETE PRODUCT
+    deleteProduct(idP) {
+      alert(idP);
+      const url = "http://applicommande.local/wp-json/wc/v3/products/" + idP;
+      axios
+        .delete(url, {
+          headers: {
+            Authorization: "Bearer " + this.token,
+          },
+        })
+        .then(res => console.log(res))
+        .catch((error) => {
+          console.log(error);
+        });
+     
+    },
   },
 };
 </script>
