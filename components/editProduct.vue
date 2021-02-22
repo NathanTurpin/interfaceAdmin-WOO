@@ -10,11 +10,11 @@
 import axios from "axios"
 export default {
 name:"editProduct",
-props:["idEditProduct"],
+props:["idEditProduct","product"],
 data(){
     return{
-        nameEdit:"",
-        priceEdit: null,
+        nameEdit: this.product.name,
+        priceEdit: this.product.regular_price,
         token: localStorage.getItem('token')
     }
 },

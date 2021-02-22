@@ -1,28 +1,31 @@
 <template>
-  <div>
+  <div class="container">
     <section id="app" class="content">
       <div v-for="(product, idProduct) in products" :key="idProduct">
-        <div class="col">
-          <div class="card">
-            <img
-              v-if="product.images[0] !== undefined"
-              :src="product.images[0].thumbnail"
-              alt=""
-              class="card-img-top"
-            />
-            <div class="card-body">
-              <h5 class="card-title">{{ product.name }}</h5>
-              <p class="card-text" v-html="product.description"></p>
-              <p class="card-text" v-html="product.price_html"></p>
-
-              <button @click="deleteProduct(product.id)">supp</button>
-              <button @click="showEditComponent(product.id)">edit</button>
-              <div v-show="showEdit">
-                <editProduct :idEditProduct="idEditProduct" />
-              </div>
+        <b-card
+          header-tag="header"
+          class="card-img mb-3"
+          footer-tag="footer"
+          v-if="product.images[0] !== undefined"
+          :img-src="product.images[0].src"
+          img-alt="Card image"
+          img-left
+          img-fluid
+        >
+          <template #header>
+            <p v-html="product.price_html"></p>
+            {{product.stock_quantity}}
+          </template>
+          <h5>{{ product.name }}</h5>
+          <b-card-text> <p v-html="product.description"></p> </b-card-text>
+          <template #footer>
+            <button @click="deleteProduct(product.id)">supp</button>
+            <button @click="showEditComponent(product.id)">edit</button>
+            
+          </template>
+        </b-card><div v-show="showEdit">
+              <editProduct :idEditProduct="idEditProduct" :product="product"/>
             </div>
-          </div>
-        </div>
       </div>
     </section>
   </div>
@@ -50,8 +53,11 @@ export default {
     // AFFICHE LES PRODUITS
     getProduct() {
       axios
-        .get("https://applicommande.local/wp-json/wc/store/products")
-        .then((response) => (this.products = response.data))
+        .get("http://applicommande.local/wp-json/wc/v3/products",{
+          headers: {
+            Authorization: "Bearer " + this.token
+          }})
+        .then((response) => (this.products = response.data,console.log( this.products)))
         .catch((error) => console.log(error));
     },
     // DELETE PRODUCT
@@ -78,13 +84,10 @@ export default {
 };
 </script>
 
-<style>
-.content {
-  display: flex;
-  flex-wrap: wrap;
-}
-.card {
-  width: 60%;
-  min-height: 50vh;
+<style scoped>
+
+.card-img img{
+  max-width: 300px;
+  max-height: 300px;
 }
 </style>
