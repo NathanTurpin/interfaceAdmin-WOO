@@ -50,7 +50,8 @@
 
       <input type="file" @change="onFileSelected" />
       <button @click="onUpload">Upload</button>
-      <button @click="addProduct">add</button>
+      <progress max="100" :value.prop="uploadPercentage"></progress>
+      <button v-show="form.idIMG" @click="addProduct">add</button>
   {{form.idIMG}}
   </div>
 </template>
@@ -67,8 +68,9 @@ export default {
         short_description : "",
         price: null,
         stock_quantity: null,
-        idIMG: ""
+        idIMG: 0
       },
+      uploadPercentage:0,
       selectedFile: null,
       token: localStorage.getItem("token"),
     };
@@ -88,11 +90,13 @@ export default {
           "http://applicommande.local/wp-json/wp/v2/media",
           fd,
           { onUploadProgress: (uploadEvent) => {
-              console.log(
-                "Upload Progress :" +
-                  Math.round((uploadEvent.loaded / uploadEvent.total) * 100) +
-                  "%"
-              );
+              // console.log(
+              //   "Upload Progress :" +
+              //     Math.round((uploadEvent.loaded / uploadEvent.total) * 100) +
+              //     "%"
+              // );
+              this.uploadPercentage = parseInt( Math.round( ( uploadEvent.loaded / uploadEvent.total ) * 100 ))
+    
             },
             headers: { Authorization: "Bearer " + this.token },
           }

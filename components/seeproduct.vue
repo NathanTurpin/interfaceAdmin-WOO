@@ -1,7 +1,12 @@
 <template>
   <div class="container">
+    <div class="search-wrapper">
+    <input type="text" v-model="search" placeholder="Search title.."/>
+        <label>Search title:</label>
+        
+  </div>
     <section id="app" class="content">
-      <div v-for="(product, idProduct) in products" :key="idProduct">
+      <div v-for="(product, idProduct) in filteredList" :key="idProduct">
         <b-card
           header-tag="header"
           class="card-img mb-3"
@@ -40,6 +45,7 @@ export default {
   },
   data() {
     return {
+      search: '',
       products: [],
       token: localStorage.getItem("token"),
       showEdit: false,
@@ -48,6 +54,13 @@ export default {
   },
   mounted() {
     this.getProduct();
+  },
+  computed: {
+    filteredList() {
+      return this.products.filter(product => {
+        return product.name.toLowerCase().includes(this.search.toLowerCase())
+      })
+    }
   },
   methods: {
     // AFFICHE LES PRODUITS
