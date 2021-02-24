@@ -2,21 +2,21 @@
   <div>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
-<nuxt-link
-                v-if="!token"
-                class="navbar-brand"
-                aria-current="page"
-                to="/"
-              >
-                Accueil </nuxt-link
-              ><nuxt-link
-                v-else
-                class="navbar-brand"
-                aria-current="page"
-                to="/commandes"
-              >
-                Accueil
-              </nuxt-link>
+        <nuxt-link
+          v-if="!token"
+          class="navbar-brand"
+          aria-current="page"
+          to="/"
+        >
+          Accueil </nuxt-link
+        ><nuxt-link
+          v-else
+          class="navbar-brand"
+          aria-current="page"
+          to="/commandes"
+        >
+          Accueil
+        </nuxt-link>
         <button
           class="navbar-toggler"
           type="button"
@@ -31,19 +31,45 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul v-if="roleChecked" class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <nuxt-link class="nav-link active" aria-current="page" to="/produits">Produits</nuxt-link>
+               <b-dropdown
+              class="nav-link active"
+                split
+                split-to="/produits"
+                text="Produits"
+              >
+                <b-dropdown-item to="/categories">Catégories</b-dropdown-item>
+              
+              </b-dropdown>
+           
             </li>
-             <li class="nav-item">
-              <nuxt-link class="nav-link active" aria-current="page" to="/commandes">Commandes</nuxt-link>
-            </li>
-             <li class="nav-item">
-              <nuxt-link class="nav-link active" aria-current="page" to="/clients">Clients</nuxt-link>
+            
+             
+            <li class="nav-item">
+              <nuxt-link
+                class="nav-link active"
+                aria-current="page"
+                to="/commandes"
+                >Commandes</nuxt-link
+              >
             </li>
             <li class="nav-item">
-              <button class="nav-link active" aria-current="page" @click="logout">Deconnexion</button>
+              <nuxt-link
+                class="nav-link active"
+                aria-current="page"
+                to="/clients"
+                >Clients</nuxt-link
+              >
+            </li>
+            <li class="nav-item">
+              <button
+                class="nav-link active"
+                aria-current="page"
+                @click="logout"
+              >
+                Deconnexion
+              </button>
             </li>
           </ul>
-          
         </div>
       </div>
     </nav>

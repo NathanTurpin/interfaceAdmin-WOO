@@ -89,6 +89,18 @@
         {{ item }}
       </div>
     </b-form-group>
+    <!-- CATEGORIE -->
+     <b-form-group id="" label="catégorie " label-for="input-2">
+      <select v-model="selectedCategorie" @change="getCategoriesId(selectedCategorie)">
+        <option v-for="(cat, key) in categories" :value="key" :key="key">
+          {{ cat.name }}
+        </option>
+      </select>
+
+      <div v-for="item in categoriesId">
+        {{ item.name }}
+      </div>
+    </b-form-group>
     <!-- IMG / VALIDE -->
 
     <input type="file" @change="onFileSelected" />
@@ -101,10 +113,11 @@
 
 <script>
 import axios from "axios";
-
 export default {
+ 
   data() {
-    return {
+   
+     return {
       form: {
         name: "",
         description: "",
@@ -115,10 +128,13 @@ export default {
         idIMG: 0,
       },
       products: [],
+      categories: [],
       selectedCross: "",
       selectedUpSell:"",
+      selectedCategorie: "",
       crossSellId: [],
       upSellId : [],
+      categoriesId : [],
       uploadPercentage: 0,
       selectedFile: null,
       token: localStorage.getItem("token"),
@@ -126,6 +142,7 @@ export default {
   },
   mounted() {
     this.getProduct();
+    this.getcategorie()
   },
   methods: {
     onFileSelected(event) {
@@ -162,6 +179,7 @@ export default {
             stock_quantity: this.form.stock_quantity,
             cross_sell_ids: this.crossSellId,
             upsell_ids: this.upSellId,
+            categories: this.categoriesId,
             images: [
               {
                 id: this.form.idIMG,
@@ -186,11 +204,24 @@ export default {
         )
         .catch((error) => console.log(error));
     },
+    // AFFICHE LES CATEGORIES
+    getcategorie() {
+      axios
+        .get("http://applicommande.local/wp-json/wc/v3/products/categories",{
+          headers: {
+            Authorization: "Bearer " + this.token
+          }})
+        .then((response) => (this.categories = response.data,console.log( this.categories)))
+        .catch((error) => console.log(error));
+    },
     getcrossSellId(item) {
       return this.crossSellId.push(this.products[item].id);
     },
     getUpSellId(item) {
       return this.upSellId.push(this.products[item].id);
+    },
+    getCategoriesId(item) {
+      return this.categoriesId.push(this.categories[item]);
     },
   },
 };
