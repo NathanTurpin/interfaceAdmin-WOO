@@ -1,36 +1,20 @@
 <template>
-  <div class="containerArticle">
-    <p>
-      titre: <input type="text" v-model="actu.title" /> contenu :
-      <input type="text" v-model="actu.content" />
-      <input type="text" v-model="actu.status" />
-      <a href="#" @click="envoyer()" class="btn btn-success">Envoyer</a>
-    </p>
+  <div>
+    <select v-model="selected" 
+        @change="test(selected)"
+     >
+      <option
+        v-for="(product, key) in products"
+        :value="key"
+        :key="key"
+      >
+        {{ product.name }}
+      </option>
+    </select>
 
-    <div v-for="(product, index) in products" :key="index">
-      <div class="card">
-        <img
-          v-if="product.images[0] !== undefined"
-          :src="product.images[0].thumbnail"
-          alt=""
-          class="card-img-top"
-        />
-        <div class="card-body">
-          <h5 class="card-title">{{ product.name }}</h5>
-          <p class="card-text" v-html="product.short_description"></p>
-
-          <p v-html="product.price_html"></p>
-          <small class="text-muted" v-if="product.is_in_stock">En stock</small>
-          <div class="card-footer">
-            <a :href="product.add_to_cart.url">{{
-              product.add_to_cart.text
-            }}</a>
-          </div>
-        </div>
-      </div>
+    <div v-for="item in reletedId">
+      {{ item }}
     </div>
-    <input type="file" @change="onFileSelected" />
-    <button @click="onUpload">Upload</button>
   </div>
 </template>
 
@@ -39,86 +23,36 @@ import axios from "axios";
 export default {
   data() {
     return {
-      token: "",
+      token: localStorage.getItem("token"),
       products: [],
-      actu: {
-        title: "",
-        content: "",
-        status: "",
-      },
-      selectedFile: null,
+      selected: "",
+      reletedId: [],
     };
   },
+  mounted() {
+    this.getProduct();
+  },
   methods: {
-    onFileSelected(event) {
-      this.selectedFile = event.target.files[0];
-    },
-    onUpload() {
-      const fd = new FormData();
-      fd.append("file", this.selectedFile);
-      fd.append("title", this.selectedFile.name);
-
-      console.log(this.selectedFile);
-      axios
-        .post(
-          "http://applicommande.local/wp-json/wp/v2/media",
-          fd,
-          { onUploadProgress: (uploadEvent) => {
-              console.log(
-                "Upload Progress :" +
-                  Math.round((uploadEvent.loaded / uploadEvent.total) * 100) +
-                  "%"
-              );
-            },
-            headers: { Authorization: "Bearer " + this.token },
-          }
-        )
-        .then((response) => console.log(response.data));
-    },
     getProduct() {
       axios
-        .get("http://applicommande.local/wp-json/wc/store/products")
-        .then((response) => (this.products = response.data))
+        .get("http://applicommande.local/wp-json/wc/v3/products", {
+          headers: {
+            Authorization: "Bearer " + this.token,
+          },
+        })
+        .then(
+          (response) => (
+            (this.products = response.data), console.log(this.products)
+          )
+        )
         .catch((error) => console.log(error));
     },
-    envoyer() {
-      axios
-        .post(
-          "http://applicommande.local/wp-json/wp/v2/posts",
-          {
-            title: this.actu.title,
-            content: this.actu.content,
-            status: this.actu.status,
-          },
-          { headers: { Authorization: "Bearer" + this.token } }
-        )
-        .then((response) => console.log(response.data))
-        .catch((error) => console.log(error.response));
+    test(item) {
+      return this.reletedId.push(this.products[item].id);
     },
-  },
-  mounted() {
-    this.getProduct(),
-      //RECUPERE LE TOKEN
-      axios
-        .post("http://applicommande.local/wp-json/jwt-auth/v1/token", {
-          username: "admin",
-          password: "admin",
-        })
-        .then((response) => (this.token = response.data.token))
-        .catch((error) => console.log(error.response));
   },
 };
 </script>
 
-<style scoped>
-.containerArticle {
-  display: flex;
-  flex-wrap: wrap;
-  width: 80%;
-  margin: auto;
-}
-.card {
-  margin: 1em 2em;
-  width: 80%;
-}
+<style>
 </style>

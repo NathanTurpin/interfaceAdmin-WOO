@@ -18,7 +18,8 @@
           img-fluid
         >
           <template #header>
-            <p v-html="product.price_html"></p>
+            <p v-if="product.salePrice" >{{product.salePrice}}</p>
+            <p v-else v-html="product.price_html"></p>
             {{product.stock_quantity}}
           </template>
           <h5>{{ product.name }}</h5>
