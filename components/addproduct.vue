@@ -62,18 +62,32 @@
         v-model="form.stock_quantity"
         required
       ></b-form-input>
-      <!-- RELETED ID -->
+    </b-form-group>
 
-      <select v-model="selected" @change="getReletedID(selected)">
+    <!-- CROSS SELL ID -->
+    <b-form-group id="" label="cross sell " label-for="input-2">
+      <select v-model="selectedCross" @change="getcrossSellId(selectedCross)">
         <option v-for="(product, key) in products" :value="key" :key="key">
           {{ product.name }}
         </option>
       </select>
 
-      <div v-for="item in reletedId">
+      <div v-for="item in crossSellId">
         {{ item }}
       </div>
-      <button @click="test">c</button>
+    </b-form-group>
+
+    <!-- UP SELL ID -->
+    <b-form-group id="" label="up sell " label-for="input-2">
+      <select v-model="selectedUpSell" @change="getUpSellId(selectedUpSell)">
+        <option v-for="(product, key) in products" :value="key" :key="key">
+          {{ product.name }}
+        </option>
+      </select>
+
+      <div v-for="item in upSellId">
+        {{ item }}
+      </div>
     </b-form-group>
     <!-- IMG / VALIDE -->
 
@@ -101,8 +115,10 @@ export default {
         idIMG: 0,
       },
       products: [],
-      selected: "",
-      reletedId: [],
+      selectedCross: "",
+      selectedUpSell:"",
+      crossSellId: [],
+      upSellId : [],
       uploadPercentage: 0,
       selectedFile: null,
       token: localStorage.getItem("token"),
@@ -132,11 +148,6 @@ export default {
         })
         .then((response) => (this.form.idIMG = response.data.id));
     },
-    test(){
-      
-      let crossId=this.reletedId
-      console.log(crossId)
-    },
     addProduct() {
       axios
         .post(
@@ -149,7 +160,8 @@ export default {
             manage_stock: true,
             sale_price: this.form.salePrice,
             stock_quantity: this.form.stock_quantity,
-            cross_sell_ids: this.reletedId,
+            cross_sell_ids: this.crossSellId,
+            upsell_ids: this.upSellId,
             images: [
               {
                 id: this.form.idIMG,
@@ -158,7 +170,7 @@ export default {
           },
           { headers: { Authorization: "Bearer " + this.token } }
         )
-         .then((response) => console.log(response));
+        .then((response) => console.log(response));
     },
     getProduct() {
       axios
@@ -174,8 +186,11 @@ export default {
         )
         .catch((error) => console.log(error));
     },
-    getReletedID(item) {
-      return this.reletedId.push(this.products[item].id);
+    getcrossSellId(item) {
+      return this.crossSellId.push(this.products[item].id);
+    },
+    getUpSellId(item) {
+      return this.upSellId.push(this.products[item].id);
     },
   },
 };
