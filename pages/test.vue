@@ -1,56 +1,41 @@
 <template>
-  <div>
-    <select v-model="selected" 
-        @change="test(selected)"
-     >
-      <option
-        v-for="(product, key) in products"
-        :value="key"
-        :key="key"
+  <div id="app">
+    <div
+      v-if="!registerActive"
+    >
+      <a href="#" @click="registerActive = !registerActive">
+        Ajouter un produit</a
       >
-        {{ product.name }}
-      </option>
-    </select>
+      <test />
+    </div>
 
-    <div v-for="item in reletedId">
-      {{ item }}
+    <div v-else >
+      <a href="#" @click="registerActive = !registerActive"
+        >Voir les produits</a
+      >
+      <test1 />
     </div>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import test from "@/components/test/test";
+import test1 from "@/components/test/test1";
+
 export default {
+  components: {
+    test,
+    test1,
+  },
   data() {
     return {
-      token: localStorage.getItem("token"),
-      products: [],
-      selected: "",
-      reletedId: [],
+      registerActive: false,
+
+      token: "",
     };
   },
-  mounted() {
-    this.getProduct();
-  },
-  methods: {
-    getProduct() {
-      axios
-        .get("http://applicommande.local/wp-json/wc/v3/products", {
-          headers: {
-            Authorization: "Bearer " + this.token,
-          },
-        })
-        .then(
-          (response) => (
-            (this.products = response.data), console.log(this.products)
-          )
-        )
-        .catch((error) => console.log(error));
-    },
-    test(item) {
-      return this.reletedId.push(this.products[item].id);
-    },
-  },
+  mounted() {},
+  methods: {},
 };
 </script>
 

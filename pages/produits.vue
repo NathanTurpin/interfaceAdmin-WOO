@@ -19,8 +19,8 @@
 </template>
 
 <script>
-import addproduct from "@/components/addproduct";
-import seeproduct from "@/components/seeproduct";
+import addproduct from "@/components/products/addproduct";
+import seeproduct from "@/components/products/seeproduct";
 
 export default {
   components: {

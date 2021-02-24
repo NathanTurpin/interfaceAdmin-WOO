@@ -1,5 +1,11 @@
 <template>
   <div>
+
+     <input type="checkbox" name="" id="" v-model="simple">
+
+    
+   
+    <section v-if="!simple"> Produit simple :
     <!-- NAME -->
     <b-form-input
       id="input-1"
@@ -72,7 +78,7 @@
         </option>
       </select>
 
-      <div v-for="item in crossSellId">
+      <div v-for="(item,key) in crossSellId" :key="key">
         {{ item }}
       </div>
     </b-form-group>
@@ -85,7 +91,7 @@
         </option>
       </select>
 
-      <div v-for="item in upSellId">
+      <div v-for="(item,key) in upSellId"  :key="key">
         {{ item }}
       </div>
     </b-form-group>
@@ -97,9 +103,13 @@
         </option>
       </select>
 
-      <div v-for="item in categoriesId">
+      <div v-for="(item,key) in categoriesId" :key="key">
         {{ item.name }}
       </div>
+    </b-form-group>
+    <!-- PRODUIT VARIANT -->
+    <b-form-group>
+      
     </b-form-group>
     <!-- IMG / VALIDE -->
 
@@ -108,13 +118,21 @@
     <progress max="100" :value.prop="uploadPercentage"></progress>
     <button v-show="form.idIMG" @click="addProduct">add</button>
     {{ form.idIMG }}
+    </section>
+    <section v-else>
+      Produit avec des variances :
+      <addproductvariant />
+    </section>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import addproductvariant from "@/components/products/addproductvariant"
 export default {
- 
+ components:{
+   addproductvariant
+ },
   data() {
    
      return {
@@ -127,6 +145,7 @@ export default {
         stock_quantity: null,
         idIMG: 0,
       },
+      simple:false,
       products: [],
       categories: [],
       selectedCross: "",
