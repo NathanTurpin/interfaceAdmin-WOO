@@ -1,141 +1,153 @@
 <template>
   <div>
-
-     <input type="checkbox" name="" id="" v-model="simple">
-
-    
-   
-    <section v-if="!simple"> Produit simple :
-    <!-- NAME -->
-    <b-form-input
-      id="input-1"
-      v-model="form.name"
-      type="text"
-      placeholder="Nom du produit"
-      required
-    ></b-form-input>
-
-    <!-- DESCRIPTION -->
-
-    <b-form-group id="input-group-2" label="description" label-for="input-2">
+    type de produit :
+    <input type="checkbox" name="" id="" v-model="simple" />
+    <div>
+      <p v-if="!simple">produit simple</p>
+      <p v-else>produit variant</p>
+    </div>
+    <section class="produit">
+      <!-- NAME -->
       <b-form-input
-        id="input-2"
-        v-model="form.description"
-        placeholder="Entrer la description"
+        id="input-1"
+        v-model="form.name"
+        type="text"
+        placeholder="Nom du produit"
         required
       ></b-form-input>
-    </b-form-group>
-    <!-- short DESCRIPTION -->
 
-    <b-form-group
-      id="input-group-3"
-      label="Petit description :"
-      label-for="input-3"
-    >
+      <!-- DESCRIPTION -->
+
+      <b-form-group id="input-group-2" label="description" label-for="input-2">
+        <b-form-input
+          id="input-2"
+          v-model="form.description"
+          placeholder="Entrer la description"
+          required
+        ></b-form-input>
+      </b-form-group>
+      <!-- short DESCRIPTION -->
+
+      <b-form-group
+        id="input-group-3"
+        label="Petit description :"
+        label-for="input-3"
+      >
+        <b-form-input
+          id="input-3"
+          v-model="form.short_description"
+          required
+        ></b-form-input>
+      </b-form-group>
+
+      <!-- CROSS SELL ID -->
+      <b-form-group id="" label="cross sell " label-for="input-2">
+        <select v-model="selectedCross" @change="getcrossSellId(selectedCross)">
+          <option v-for="(product, key) in products" :value="key" :key="key">
+            {{ product.name }}
+          </option>
+        </select>
+
+        <div v-for="(item, key) in crossSellId" :key="key">
+          {{ item }}
+        </div>
+      </b-form-group>
+
+      <!-- UP SELL ID -->
+      <b-form-group id="" label="up sell " label-for="input-2">
+        <select v-model="selectedUpSell" @change="getUpSellId(selectedUpSell)">
+          <option v-for="(product, key) in products" :value="key" :key="key">
+            {{ product.name }}
+          </option>
+        </select>
+
+        <div v-for="(item, key) in upSellId" :key="key">
+          {{ item }}
+        </div>
+      </b-form-group>
+      <!-- CATEGORIE -->
+      <b-form-group id="" label="catégorie " label-for="input-2">
+        <select
+          v-model="selectedCategorie"
+          @change="getCategoriesId(selectedCategorie)"
+        >
+          <option v-for="(cat, key) in categories" :value="key" :key="key">
+            {{ cat.name }}
+          </option>
+        </select>
+
+        <div v-for="(item, key) in categoriesId" :key="key">
+          {{ item.name }}
+        </div>
+      </b-form-group>
+      <!-- IMG / VALIDE -->
+
+      <input type="file" @change="onFileSelected" />
+      <button @click="onUpload">Upload</button>
+      <progress max="100" :value.prop="uploadPercentage"></progress>
+      {{ form.idIMG }}
+      <button v-if="simple" @click="addProduct">add</button>
+    </section>
+
+    <section v-if="!simple">
+      Produit simple :
+
+      <!-- PRICE -->
+
       <b-form-input
-        id="input-3"
-        v-model="form.short_description"
-        required
-      ></b-form-input>
-    </b-form-group>
-    <!-- PRICE -->
-
-    <b-form-input
-      id="input-1"
-      v-model="form.price"
-      type="number"
-      placeholder="€"
-      required
-    ></b-form-input>
-    <!-- SALE PRICE -->
-
-    <b-form-input
-      id="input-1"
-      v-model="form.salePrice"
-      type="number"
-      placeholder="promo en €"
-    ></b-form-input>
-    <!-- QTE STOCK -->
-
-    <b-form-group
-      id="input-group-4"
-      label="Quantité de stock :"
-      label-for="input-4"
-    >
-      <b-form-input
-        id="input-4"
+        id="input-1"
+        v-model="form.price"
         type="number"
-        v-model="form.stock_quantity"
+        placeholder="€"
         required
       ></b-form-input>
-    </b-form-group>
+      <!-- SALE PRICE -->
 
-    <!-- CROSS SELL ID -->
-    <b-form-group id="" label="cross sell " label-for="input-2">
-      <select v-model="selectedCross" @change="getcrossSellId(selectedCross)">
-        <option v-for="(product, key) in products" :value="key" :key="key">
-          {{ product.name }}
-        </option>
-      </select>
+      <b-form-input
+        id="input-1"
+        v-model="form.salePrice"
+        type="number"
+        placeholder="promo en €"
+      ></b-form-input>
+      <!-- QTE STOCK -->
 
-      <div v-for="(item,key) in crossSellId" :key="key">
-        {{ item }}
-      </div>
-    </b-form-group>
+      <b-form-group
+        id="input-group-4"
+        label="Quantité de stock :"
+        label-for="input-4"
+      >
+        <b-form-input
+          id="input-4"
+          type="number"
+          v-model="form.stock_quantity"
+          required
+        ></b-form-input>
+      </b-form-group>
 
-    <!-- UP SELL ID -->
-    <b-form-group id="" label="up sell " label-for="input-2">
-      <select v-model="selectedUpSell" @change="getUpSellId(selectedUpSell)">
-        <option v-for="(product, key) in products" :value="key" :key="key">
-          {{ product.name }}
-        </option>
-      </select>
-
-      <div v-for="(item,key) in upSellId"  :key="key">
-        {{ item }}
-      </div>
-    </b-form-group>
-    <!-- CATEGORIE -->
-     <b-form-group id="" label="catégorie " label-for="input-2">
-      <select v-model="selectedCategorie" @change="getCategoriesId(selectedCategorie)">
-        <option v-for="(cat, key) in categories" :value="key" :key="key">
-          {{ cat.name }}
-        </option>
-      </select>
-
-      <div v-for="(item,key) in categoriesId" :key="key">
-        {{ item.name }}
-      </div>
-    </b-form-group>
+      <button v-if="form.idIMG" @click="addProduct">add</button>
+      <p v-else>manque image</p>
+    </section>
     <!-- PRODUIT VARIANT -->
-    <b-form-group>
-      
-    </b-form-group>
-    <!-- IMG / VALIDE -->
 
-    <input type="file" @change="onFileSelected" />
-    <button @click="onUpload">Upload</button>
-    <progress max="100" :value.prop="uploadPercentage"></progress>
-    <button v-show="form.idIMG" @click="addProduct">add</button>
-    {{ form.idIMG }}
-    </section>
     <section v-else>
-      Produit avec des variances :
-      <addproductvariant />
+      <br />
+      Ajouter les variances :
+      <addproductvariant :products="products" :newProductId="newProductId" />
     </section>
+
+    {{ newProductId }}
   </div>
 </template>
 
 <script>
 import axios from "axios";
-import addproductvariant from "@/components/products/addproductvariant"
+import addproductvariant from "@/components/products/addproductvariant";
 export default {
- components:{
-   addproductvariant
- },
+  components: {
+    addproductvariant,
+  },
   data() {
-   
-     return {
+    return {
       form: {
         name: "",
         description: "",
@@ -144,16 +156,18 @@ export default {
         salePrice: null,
         stock_quantity: null,
         idIMG: 0,
+        type: "simple",
       },
-      simple:false,
+      simple: false,
+      newProductId: "",
       products: [],
       categories: [],
       selectedCross: "",
-      selectedUpSell:"",
+      selectedUpSell: "",
       selectedCategorie: "",
       crossSellId: [],
-      upSellId : [],
-      categoriesId : [],
+      upSellId: [],
+      categoriesId: [],
       uploadPercentage: 0,
       selectedFile: null,
       token: localStorage.getItem("token"),
@@ -161,7 +175,7 @@ export default {
   },
   mounted() {
     this.getProduct();
-    this.getcategorie()
+    this.getcategorie();
   },
   methods: {
     onFileSelected(event) {
@@ -185,6 +199,9 @@ export default {
         .then((response) => (this.form.idIMG = response.data.id));
     },
     addProduct() {
+      if (this.simple) {
+        this.form.type = "variable";
+      }
       axios
         .post(
           "http://applicommande.local/wp-json/wc/v3/products",
@@ -199,6 +216,16 @@ export default {
             cross_sell_ids: this.crossSellId,
             upsell_ids: this.upSellId,
             categories: this.categoriesId,
+            type: this.form.type,
+            attributes: [
+              {
+                id: 2,
+                name: "taille",
+                visible: true,
+                variation: true,
+                options: ["xxl"],
+              },
+            ],
             images: [
               {
                 id: this.form.idIMG,
@@ -207,7 +234,10 @@ export default {
           },
           { headers: { Authorization: "Bearer " + this.token } }
         )
-        .then((response) => console.log(response));
+        .then(
+          (response) => (this.newProductId = response.data.id),
+          (response) => console.log(response)
+        );
     },
     getProduct() {
       axios
@@ -226,11 +256,16 @@ export default {
     // AFFICHE LES CATEGORIES
     getcategorie() {
       axios
-        .get("http://applicommande.local/wp-json/wc/v3/products/categories",{
+        .get("http://applicommande.local/wp-json/wc/v3/products/categories", {
           headers: {
-            Authorization: "Bearer " + this.token
-          }})
-        .then((response) => (this.categories = response.data,console.log( this.categories)))
+            Authorization: "Bearer " + this.token,
+          },
+        })
+        .then(
+          (response) => (
+            (this.categories = response.data), console.log(this.categories)
+          )
+        )
         .catch((error) => console.log(error));
     },
     getcrossSellId(item) {

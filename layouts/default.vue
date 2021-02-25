@@ -31,19 +31,17 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul v-if="roleChecked" class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-               <b-dropdown
-              class="nav-link active"
+              <b-dropdown
+                class="nav-link active"
                 split
                 split-to="/produits"
                 text="Produits"
               >
                 <b-dropdown-item to="/categories">Catégories</b-dropdown-item>
-              
+                <b-dropdown-item to="/attributs">Attributs</b-dropdown-item>
               </b-dropdown>
-           
             </li>
-            
-             
+
             <li class="nav-item">
               <nuxt-link
                 class="nav-link active"
