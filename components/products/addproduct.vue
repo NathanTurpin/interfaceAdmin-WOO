@@ -1,26 +1,41 @@
 <template>
-  <div>
-    type de produit :
-    <input type="checkbox" name="" id="" v-model="simple" />
-    <div>
-      <p v-if="!simple">produit simple</p>
-      <p v-else>produit variant</p>
-    </div>
+  <div class="container">
+    <section class="typeProduct">
+      <div>
+        <b-form-select
+          v-model="selectedProduct"
+          :options="options"
+        ></b-form-select>
+        <div class="mt-3">
+          Type de produit : <strong>{{ selectedProduct }}</strong>
+        </div>
+      </div>
+    </section>
+
     <section class="produit">
       <!-- NAME -->
-      <b-form-input
-        id="input-1"
-        v-model="form.name"
-        type="text"
-        placeholder="Nom du produit"
-        required
-      ></b-form-input>
-
+      <b-form-group
+        id="input-group-1"
+        label="Nom du produit :"
+        label-for="input-1"
+      >
+        <b-form-input
+          id="input-1"
+          v-model="form.name"
+          type="text"
+          placeholder="Nom du produit"
+          required
+        ></b-form-input>
+      </b-form-group>
       <!-- DESCRIPTION -->
 
-      <b-form-group id="input-group-2" label="description" label-for="input-2">
+      <b-form-group
+        id="input-group-1"
+        label="Description :"
+        label-for="input-1"
+      >
         <b-form-input
-          id="input-2"
+          id="input-1"
           v-model="form.description"
           placeholder="Entrer la description"
           required
@@ -29,134 +44,206 @@
       <!-- short DESCRIPTION -->
 
       <b-form-group
-        id="input-group-3"
+        id="input-group-1"
         label="Petit description :"
-        label-for="input-3"
+        label-for="input-1"
       >
         <b-form-input
-          id="input-3"
+          id="input-1"
           v-model="form.short_description"
+          placeholder="Entrer une petite description"
           required
         ></b-form-input>
       </b-form-group>
 
-      <!-- CROSS SELL ID -->
-      <b-form-group id="" label="cross sell " label-for="input-2">
-        <select v-model="selectedCross" @change="getcrossSellId(selectedCross)">
-          <option v-for="(product, key) in products" :value="key" :key="key">
-            {{ product.name }}
-          </option>
-        </select>
-
-        <div v-for="(item, key) in crossSellId" :key="key">
-          {{ item }}
-        </div>
-      </b-form-group>
-
-      <!-- UP SELL ID -->
-      <b-form-group id="" label="up sell " label-for="input-2">
-        <select v-model="selectedUpSell" @change="getUpSellId(selectedUpSell)">
-          <option v-for="(product, key) in products" :value="key" :key="key">
-            {{ product.name }}
-          </option>
-        </select>
-
-        <div v-for="(item, key) in upSellId" :key="key">
-          {{ item }}
-        </div>
-      </b-form-group>
-      <!-- CATEGORIE -->
-      <b-form-group id="" label="catégorie " label-for="input-2">
-        <select
-          v-model="selectedCategorie"
-          @change="getCategoriesId(selectedCategorie)"
-        >
-          <option v-for="(cat, key) in categories" :value="key" :key="key">
-            {{ cat.name }}
-          </option>
-        </select>
-
-        <div v-for="(item, key) in categoriesId" :key="key">
-          {{ item.name }}
-        </div>
-      </b-form-group>
-      <!-- ATTRIBUTES -->
-      <b-form-group>
-        <select
-          v-model="selectedAttributes"
-  
-          @change="attributeID = attributes[selectedAttributes], 
-          getTermes(attributes[selectedAttributes].id)"
-        >
-          <option
-            v-for="(attribute, key) in attributes"
-            :value="key"
-            :key="key"
-          >
-            {{ attribute.name }}
-          </option>
-        </select>
-        {{ attributeID }}
-        <p v-for="i in termes">
-          {{ i.name }}
-        </p>
-      </b-form-group>
       <!-- IMG / VALIDE -->
-
-      <input type="file" @change="onFileSelected" />
-      <button @click="onUpload">Upload</button>
-      <progress max="100" :value.prop="uploadPercentage"></progress>
-      {{ form.idIMG }}
-      <button v-if="simple" @click="addProduct">add</button>
+      <b-form-group
+        id="input-group-1"
+        label="Ajouter une image :"
+        label-for="input-1"
+      >
+        <input type="file" @change="onFileSelected" />
+        <button @click="onUpload">Upload</button>
+        <progress max="100" :value.prop="uploadPercentage"></progress>
+        {{ form.idIMG }}
+      </b-form-group>
     </section>
 
-    <section v-if="!simple">
-      Produit simple :
+    <section class="general">
+      <div>
+        <b-card no-body class="overflow-hidden" style="max-width: 540px">
+          <b-row no-gutters>
+            <b-col md="3" class="btnGeneral">
+              <b-button @click="generalBtn()" variant="dark">Général</b-button>
+              <b-button @click="produitBtn()" variant="dark"
+                >Produits liés</b-button
+              >
+              <b-button
+                v-show="selectedProduct === 'Variable'"
+                @click="attributBtn()"
+                variant="dark"
+                >Produit variable</b-button
+              >
+            </b-col>
+            <b-col md="9">
+              <b-card-body title="">
+                <b-card-text class="test" v-show="geneBtn">
+                  <!-- PRICE -->
+                  <b-form-group
+                    id="input-group-2"
+                    label="Prix :"
+                    label-for="input-2"
+                  >
+                    <b-form-input
+                      id="input-2"
+                      v-model="form.price"
+                      type="number"
+                      placeholder="€"
+                      required
+                    ></b-form-input>
+                  </b-form-group>
+                  <!-- SALE PRICE -->
+                  <b-form-group
+                    id="input-group-2"
+                    label="Prix promo :"
+                    label-for="input-2"
+                  >
+                    <b-form-input
+                      id="input-2"
+                      v-model="form.salePrice"
+                      type="number"
+                      placeholder="promo en €"
+                    ></b-form-input>
+                  </b-form-group>
+                  <!-- QTE STOCK -->
 
-      <!-- PRICE -->
+                  <b-form-group
+                    id="input-group-2"
+                    label="Quantité de stock :"
+                    label-for="input-2"
+                  >
+                    <b-form-input
+                      id="input-2"
+                      type="number"
+                      v-model="form.stock_quantity"
+                      required
+                    ></b-form-input>
+                  </b-form-group>
 
-      <b-form-input
-        id="input-1"
-        v-model="form.price"
-        type="number"
-        placeholder="€"
-        required
-      ></b-form-input>
-      <!-- SALE PRICE -->
+                  <!-- CATEGORIE -->
+                  <b-form-group id="" label="catégorie " label-for="input-2">
+                    <select
+                      v-model="selectedCategorie"
+                      @change="getCategoriesId(selectedCategorie)"
+                    >
+                      <option
+                        v-for="(cat, key) in categories"
+                        :value="key"
+                        :key="key"
+                      >
+                        {{ cat.name }}
+                      </option>
+                    </select>
 
-      <b-form-input
-        id="input-1"
-        v-model="form.salePrice"
-        type="number"
-        placeholder="promo en €"
-      ></b-form-input>
-      <!-- QTE STOCK -->
+                    <div v-for="(item, key) in categoriesId" :key="key">
+                      {{ item.name }}
+                    </div>
+                  </b-form-group>
+                </b-card-text>
+                <b-card-text v-show="proBtn">
+                  <!-- CROSS SELL ID -->
+                  <b-form-group id="" label="cross sell " label-for="input-2">
+                    <select
+                      v-model="selectedCross"
+                      @change="getcrossSellId(selectedCross)"
+                    >
+                      <option
+                        v-for="(product, key) in products"
+                        :value="key"
+                        :key="key"
+                      >
+                        {{ product.name }}
+                      </option>
+                    </select>
 
-      <b-form-group
-        id="input-group-4"
-        label="Quantité de stock :"
-        label-for="input-4"
-      >
-        <b-form-input
-          id="input-4"
-          type="number"
-          v-model="form.stock_quantity"
-          required
-        ></b-form-input>
-      </b-form-group>
+                    <div v-for="(item, key) in crossSellId" :key="key">
+                      {{ item }}
+                    </div>
+                  </b-form-group>
 
+                  <!-- UP SELL ID -->
+                  <b-form-group id="" label="up sell " label-for="input-2">
+                    <select
+                      v-model="selectedUpSell"
+                      @change="getUpSellId(selectedUpSell)"
+                    >
+                      <option
+                        v-for="(product, key) in products"
+                        :value="key"
+                        :key="key"
+                      >
+                        {{ product.name }}
+                      </option>
+                    </select>
+
+                    <div v-for="(item, key) in upSellId" :key="key">
+                      {{ item }}
+                    </div>
+                  </b-form-group>
+                </b-card-text>
+                <b-card-text
+                  v-show="attriBtn && selectedProduct === 'Variable'"
+                >
+                  <!-- ATTRIBUTES -->
+                  <b-form-group
+                    id=""
+                    label="Choisir un attribut : "
+                    label-for="input-2"
+                  >
+                    <select
+                      v-model="selectedAttributes"
+                      @change="
+                        (attributeID = attributes[selectedAttributes]),
+                          getTermes(attributes[selectedAttributes].id)
+                      "
+                    >
+                      <option
+                        v-for="(attribute, key) in attributes"
+                        :value="key"
+                        :key="key"
+                      >
+                        {{ attribute.name }}
+                      </option>
+                    </select>
+                    {{ attributeID.id }}
+                    
+                  </b-form-group>
+                  <button @click="addProduct" v-if="termes[0]">Choisir</button>
+                  <p v-if="newProductId">OK</p>
+                  <!-- PRODUIT VARIANT -->
+
+                  <br />
+                  <div v-show="newProductId">
+                    Ajouter les variances :
+                    <addproductvariant
+                      :products="products"
+                      :newProductId="newProductId"
+                      :termes="termes"
+                      :attributeID="attributeID"
+                    />
+                  </div>
+                </b-card-text>
+              </b-card-body>
+            </b-col>
+          </b-row>
+        </b-card>
+      </div>
+    </section>
+    <section class="variable"></section>
+    <section v-show="selectedProduct === 'Simple'">
       <button v-if="form.idIMG" @click="addProduct">add</button>
       <p v-else>manque image</p>
     </section>
-    <!-- PRODUIT VARIANT -->
-
-    <section v-else>
-      <br />
-      Ajouter les variances :
-      <addproductvariant :products="products" :newProductId="newProductId" :termes="termes" :attributeID="attributeID" />
-    </section>
-
-    {{ newProductId }}
   </div>
 </template>
 
@@ -169,6 +256,14 @@ export default {
   },
   data() {
     return {
+      geneBtn: true,
+      proBtn: false,
+      attriBtn: false,
+      selectedProduct: "Simple",
+      options: [
+        { value: "Simple", text: "Produit simple" },
+        { value: "Variable", text: "Produit variable" },
+      ],
       form: {
         name: "",
         description: "",
@@ -225,13 +320,15 @@ export default {
         .then((response) => (this.form.idIMG = response.data.id));
     },
     addProduct() {
-      let termesName= []
-      for(let i=0;i<this.termes.length;i++){
-      termesName.push(this.termes[i].name)
+      let termesName = [];
+      for (let i = 0; i < this.termes.length; i++) {
+        termesName.push(this.termes[i].name);
       }
-      console.log(termesName)
+      console.log(termesName);
 
-      if (this.simple) {
+      if (this.selectedProduct === "Simple") {
+        this.form.type = "simple";
+      } else {
         this.form.type = "variable";
       }
       axios
@@ -267,8 +364,9 @@ export default {
           { headers: { Authorization: "Bearer " + this.token } }
         )
         .then(
-          (response) => (this.newProductId = response.data.id,console.log(response)),
-         
+          (response) => (
+            (this.newProductId = response.data.id), console.log(response)
+          )
         );
     },
     getProduct() {
@@ -314,14 +412,19 @@ export default {
         )
         .catch((error) => console.log(error));
     },
-   async getTermes(id) {
-      await 
-      axios
-        .get(window.addresse + "wp-json/wc/v3/products/attributes/"+ id +"/terms", {
-          headers: {
-            Authorization: "Bearer " + this.token,
-          },
-        })
+    async getTermes(id) {
+      await axios
+        .get(
+          window.addresse +
+            "wp-json/wc/v3/products/attributes/" +
+            id +
+            "/terms",
+          {
+            headers: {
+              Authorization: "Bearer " + this.token,
+            },
+          }
+        )
         .then(
           (response) => (
             (this.termes = response.data), console.log(this.termes)
@@ -338,10 +441,53 @@ export default {
     getCategoriesId(item) {
       return this.categoriesId.push(this.categories[item]);
     },
+    generalBtn() {
+      (this.attriBtn = false), (this.geneBtn = true), (this.proBtn = false);
+    },
+    produitBtn() {
+      (this.attriBtn = false), (this.geneBtn = false), (this.proBtn = true);
+    },
+    attributBtn() {
+      (this.attriBtn = true), (this.geneBtn = false), (this.proBtn = false);
+    },
   },
 };
 </script>
 
 
-<style>
+<style scoped>
+.typeProduct {
+  margin-bottom: 5%;
+}
+.produit {
+  border: 3px outset rgba(28, 110, 164, 0.2);
+  border-radius: 13px;
+  -webkit-box-shadow: 0px 2px 21px 1px rgba(51, 51, 51, 0.88);
+  box-shadow: 0px 2px 21px 1px rgba(51, 51, 51, 0.88);
+  padding: 2em;
+}
+.general {
+  margin-top: 5%;
+}
+.card {
+  min-width: 100%;
+}
+.btnGeneral {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+
+.btnGeneral button {
+  margin: 0.2em;
+}
+
+#input-group-2 {
+  display: inline-block;
+  width: 140px;
+  text-align: left;
+}
+​ #input-2 {
+  width: 20%;
+}
 </style>
