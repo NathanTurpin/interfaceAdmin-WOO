@@ -32,29 +32,30 @@ export default {
   methods: {
     addVariants(idTerme) {
       console.log(this.termes[idTerme].name)
-      console.log(this.attributeID.name)
-      // axios
-      //   .post(
-      //     "http://applicommande.local/wp-json/wc/v3/products/" +
-      //       this.newProductId +
-      //       "/variations",
-      //     {
-      //       regular_price: this.termes[idTerme].regularPrice,
-      //       attributes: [
-      //         {
-      //           id: this.termes[idTerme].id,
-      //           option: this.termes[idTerme].name,
-      //         },
-      //       ],
-      //     },
-      //     {
-      //       headers: {
-      //         Authorization: "Bearer " + this.token,
-      //       },
-      //     }
-      //   )
-      //   .then((response) => console.log(response))
-      //   .catch((error) => console.log(error));
+      console.log(this.attributeID.name,this.attributeID.id)
+      axios
+        .post(
+          "http://applicommande.local/wp-json/wc/v3/products/" +
+            this.newProductId +
+            "/variations",
+          {
+            regular_price: this.termes[idTerme].regularPrice,
+            attributes: [
+              {
+                id: this.attributeID.id,
+                name: this.attributeID.name,
+                option: this.termes[idTerme].name,
+              },
+            ],
+          },
+          {
+            headers: {
+              Authorization: "Bearer " + this.token,
+            },
+          }
+        )
+        .then((response) => console.log(response))
+        .catch((error) => console.log(error));
      },
   },
 };
