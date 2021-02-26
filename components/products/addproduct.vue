@@ -80,6 +80,27 @@
           {{ item.name }}
         </div>
       </b-form-group>
+      <!-- ATTRIBUTES -->
+      <b-form-group>
+        <select
+          v-model="selectedAttributes"
+  
+          @change="attributeID = attributes[selectedAttributes], 
+          getTermes(attributes[selectedAttributes].id)"
+        >
+          <option
+            v-for="(attribute, key) in attributes"
+            :value="key"
+            :key="key"
+          >
+            {{ attribute.name }}
+          </option>
+        </select>
+        {{ attributeID }}
+        <p v-for="i in termes">
+          {{ i.name }}
+        </p>
+      </b-form-group>
       <!-- IMG / VALIDE -->
 
       <input type="file" @change="onFileSelected" />
@@ -132,7 +153,7 @@
     <section v-else>
       <br />
       Ajouter les variances :
-      <addproductvariant :products="products" :newProductId="newProductId" />
+      <addproductvariant :products="products" :newProductId="newProductId" :termes="termes" :attributeID="attributeID" />
     </section>
 
     {{ newProductId }}
@@ -158,6 +179,10 @@ export default {
         idIMG: 0,
         type: "simple",
       },
+      attributes: [],
+      selectedAttributes: "",
+      attributeID: "",
+      termes: [],
       simple: false,
       newProductId: "",
       products: [],
@@ -176,6 +201,7 @@ export default {
   mounted() {
     this.getProduct();
     this.getcategorie();
+    this.getAttributes();
   },
   methods: {
     onFileSelected(event) {
@@ -199,6 +225,12 @@ export default {
         .then((response) => (this.form.idIMG = response.data.id));
     },
     addProduct() {
+      let termesName= []
+      for(let i=0;i<this.termes.length;i++){
+      termesName.push(this.termes[i].name)
+      }
+      console.log(termesName)
+
       if (this.simple) {
         this.form.type = "variable";
       }
@@ -219,11 +251,11 @@ export default {
             type: this.form.type,
             attributes: [
               {
-                id: 2,
-                name: "taille",
+                id: this.attributeID.id,
+                name: this.attributeID.name,
                 visible: true,
                 variation: true,
-                options: ["xxl"],
+                options: termesName,
               },
             ],
             images: [
@@ -235,8 +267,8 @@ export default {
           { headers: { Authorization: "Bearer " + this.token } }
         )
         .then(
-          (response) => (this.newProductId = response.data.id),
-          (response) => console.log(response)
+          (response) => (this.newProductId = response.data.id,console.log(response)),
+         
         );
     },
     getProduct() {
@@ -264,6 +296,35 @@ export default {
         .then(
           (response) => (
             (this.categories = response.data), console.log(this.categories)
+          )
+        )
+        .catch((error) => console.log(error));
+    },
+    getAttributes() {
+      axios
+        .get("http://applicommande.local/wp-json/wc/v3/products/attributes", {
+          headers: {
+            Authorization: "Bearer " + this.token,
+          },
+        })
+        .then(
+          (response) => (
+            (this.attributes = response.data), console.log(this.attributes)
+          )
+        )
+        .catch((error) => console.log(error));
+    },
+   async getTermes(id) {
+      await 
+      axios
+        .get("http://applicommande.local/wp-json/wc/v3/products/attributes/"+ id +"/terms", {
+          headers: {
+            Authorization: "Bearer " + this.token,
+          },
+        })
+        .then(
+          (response) => (
+            (this.termes = response.data), console.log(this.termes)
           )
         )
         .catch((error) => console.log(error));
