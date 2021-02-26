@@ -39,7 +39,7 @@ export default {
   methods: {
     getCommandesAdmin() {
       axios
-        .get("http://applicommande.local/wp-json/wc/v3/orders", {
+        .get(window.addresse + "wp-json/wc/v3/orders", {
           headers: { Authorization: "Bearer " + this.token },
         })
         .then((response) => (this.commandes = response.data))

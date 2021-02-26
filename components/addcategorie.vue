@@ -41,7 +41,7 @@ export default {
     addCategorie() {
       axios
         .post(
-          "http://applicommande.local/wp-json/wc/v3/products/categories",
+          window.addresse + "wp-json/wc/v3/products/categories",
           {
             name: this.form.name,
             description: this.form.description,

@@ -63,7 +63,7 @@ export default {
     // AFFICHE LES CATEGORIES
     getcategorie() {
       axios
-        .get("http://applicommande.local/wp-json/wc/v3/products/categories",{
+        .get(window.addresse + "wp-json/wc/v3/products/categories",{
           headers: {
             Authorization: "Bearer " + this.token
           }})
@@ -73,7 +73,7 @@ export default {
     // DELETE categorie
     deletecategorie(idP) {
       alert(idP);
-      const url = "http://applicommande.local/wp-json/wc/v3/products/categories/" + idP;
+      const url = window.addresse + "wp-json/wc/v3/products/categories/" + idP;
       axios
         .delete(url, {
           headers: {

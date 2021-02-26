@@ -21,7 +21,7 @@ data(){
 methods: {
 editProduct() {
       alert(this.idEditProduct);
-      const url = "http://applicommande.local//wp-json/wc/v3/products/" + this.idEditProduct;
+      const url = window.addresse + "/wp-json/wc/v3/products/" + this.idEditProduct;
       axios
         .put(url,{
             name: this.nameEdit,

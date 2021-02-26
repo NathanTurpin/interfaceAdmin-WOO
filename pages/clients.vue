@@ -42,7 +42,7 @@ export default {
     // AFFICHE LES CLIENTS
     getClients() {
       axios
-        .get("http://applicommande.local/wp-json/wc/v3/customers",{
+        .get(window.addresse + "wp-json/wc/v3/customers",{
           headers: {
             Authorization: "Bearer " + this.token,
           }})

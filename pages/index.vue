@@ -74,7 +74,7 @@ export default {
         this.emptyFields = true;
       } else {
         const response = await axios.post(
-          "http://applicommande.local/wp-json/jwt-auth/v1/token",
+          window.addresse +"wp-json/jwt-auth/v1/token",
           {
             username: this.username,
             password: this.passwordLogin,

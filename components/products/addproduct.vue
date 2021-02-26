@@ -214,7 +214,7 @@ export default {
 
       console.log(this.selectedFile);
       axios
-        .post("http://applicommande.local/wp-json/wp/v2/media", fd, {
+        .post(window.addresse + "wp-json/wp/v2/media", fd, {
           onUploadProgress: (uploadEvent) => {
             this.uploadPercentage = parseInt(
               Math.round((uploadEvent.loaded / uploadEvent.total) * 100)
@@ -236,7 +236,7 @@ export default {
       }
       axios
         .post(
-          "http://applicommande.local/wp-json/wc/v3/products",
+          window.addresse + "wp-json/wc/v3/products",
           {
             name: this.form.name,
             description: this.form.description,
@@ -273,7 +273,7 @@ export default {
     },
     getProduct() {
       axios
-        .get("http://applicommande.local/wp-json/wc/v3/products", {
+        .get(window.addresse + "wp-json/wc/v3/products", {
           headers: {
             Authorization: "Bearer " + this.token,
           },
@@ -288,7 +288,7 @@ export default {
     // AFFICHE LES CATEGORIES
     getcategorie() {
       axios
-        .get("http://applicommande.local/wp-json/wc/v3/products/categories", {
+        .get(window.addresse + "wp-json/wc/v3/products/categories", {
           headers: {
             Authorization: "Bearer " + this.token,
           },
@@ -302,7 +302,7 @@ export default {
     },
     getAttributes() {
       axios
-        .get("http://applicommande.local/wp-json/wc/v3/products/attributes", {
+        .get(window.addresse + "wp-json/wc/v3/products/attributes", {
           headers: {
             Authorization: "Bearer " + this.token,
           },
@@ -317,7 +317,7 @@ export default {
    async getTermes(id) {
       await 
       axios
-        .get("http://applicommande.local/wp-json/wc/v3/products/attributes/"+ id +"/terms", {
+        .get(window.addresse + "wp-json/wc/v3/products/attributes/"+ id +"/terms", {
           headers: {
             Authorization: "Bearer " + this.token,
           },

@@ -67,7 +67,7 @@ export default {
     // AFFICHE LES PRODUITS
     getProduct() {
       axios
-        .get("http://applicommande.local/wp-json/wc/v3/products",{
+        .get(window.addresse + "wp-json/wc/v3/products",{
           headers: {
             Authorization: "Bearer " + this.token
           }})
@@ -77,7 +77,7 @@ export default {
     // DELETE PRODUCT
     deleteProduct(idP) {
       alert(idP);
-      const url = "http://applicommande.local/wp-json/wc/v3/products/" + idP;
+      const url = window.addresse + "wp-json/wc/v3/products/" + idP;
       axios
         .delete(url, {
           headers: {

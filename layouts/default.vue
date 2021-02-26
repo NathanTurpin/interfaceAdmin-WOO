@@ -89,6 +89,7 @@ export default {
     };
   },
   mounted() {
+    window.addresse = "http://applicommande.local/"
     this.roleChecking();
   },
   methods: {

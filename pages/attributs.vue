@@ -62,7 +62,7 @@ export default {
     addAttributes() {
       axios
         .post(
-          "http://applicommande.local/wp-json/wc/v3/products/attributes",
+          window.addresse + "wp-json/wc/v3/products/attributes",
           {
             name: this.nameAtttribute,
           },
@@ -72,7 +72,7 @@ export default {
     },
     getAttribut() {
       axios
-        .get("http://applicommande.local/wp-json/wc/v3/products/attributes", {
+        .get(window.addresse + "wp-json/wc/v3/products/attributes", {
           headers: {
             Authorization: "Bearer " + this.token,
           },
@@ -90,7 +90,7 @@ export default {
     addTerme() {
       axios
         .post(
-          "http://applicommande.local/wp-json/wc/v3/products/attributes/" +
+          window.addresse + "wp-json/wc/v3/products/attributes/" +
             this.attributId.id +
             "/terms",
           {

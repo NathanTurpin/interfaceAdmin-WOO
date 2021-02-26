@@ -35,7 +35,7 @@ export default {
       console.log(this.attributeID.name,this.attributeID.id)
       axios
         .post(
-          "http://applicommande.local/wp-json/wc/v3/products/" +
+          window.addresse + "wp-json/wc/v3/products/" +
             this.newProductId +
             "/variations",
           {
