@@ -7,7 +7,8 @@
     <section class="termes">
       <div v-for="(terme,idTerme) in termes" :key="idTerme">
       {{terme.name}} <button @click="addVariants(idTerme)">add variant</button>
-      <input type="number" v-model="termes[idTerme].regularPrice">
+     
+      <input type="number" placeholder="€" v-model="termes[idTerme].regularPrice">
       </div>
     </section>
 
