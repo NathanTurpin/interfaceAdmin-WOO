@@ -1,64 +1,65 @@
 <template>
-  <div class="container">
-    <div class="search-wrapper">
-      <input type="text" v-model="search" placeholder="Search title.." />
+  <div class="container-fluid">
+     <div class="search-wrapper">
       <label>Search title:</label>
-    </div>
-    <section id="app" class="content">
-      <div v-for="(product, idProduct) in filteredList" :key="idProduct">
-        <b-card
-          header-tag="header"
-          class="card-img mb-3"
-          footer-tag="footer"
-          v-if="product.images[0] !== undefined"
-          :img-src="product.images[0].src"
-          img-alt="Card image"
-          img-left
-          img-fluid
-        >
-          <template #header>
-            Prix:
-            <p v-if="product.salePrice">{{ product.salePrice }}</p>
-            <p v-else v-html="product.price_html"></p>
-            Stock:
-            {{ product.stock_quantity }}
-            variations :
-            <div v-show="products_id === idProduct">
-              <div
-                v-for="(variation, idVar) in variations"
-                v-b-modal.modal-1
-                :key="idVar"
-              >
-                <div
-                  v-for="varia in variation.attributes"
-                  @click="seeProVar(variation, product)"
-                >
-                  {{ varia.name }}
 
-                  {{ varia.option }}
-                </div>
-              </div>
-            </div>
-          </template>
-          <h5>{{ product.name }}</h5>
-          <b-card-text> <p v-html="product.description"></p> </b-card-text>
-          <template #footer>
-            <button @click="deleteProduct(product.id)">supp</button>
-            <button @click="showEditComponent(product.id)">edit</button>
-            <button
-              v-if="product.variations[0]"
-              to="../seeVariations"
-              @click="seeProductVariations(product.id, idProduct)"
+      <input type="text" v-model="search" placeholder="Search title.." />
+    </div>
+  <div class="card-group">
+      <div class="card" v-for="(product, idProduct) in filteredList" :key="idProduct">
+        <img
+          class="card-img-top img-fluid"
+          v-if="product.images[0] !== undefined"
+          :src="product.images[0].src"
+          alt="Card image cap"
+        />
+        <div class="card-body">
+          <h5 class="card-title">
+            <h3>{{ product.name }}</h3>
+          </h5>
+          <p class="card-text" v-html="product.description"></p>
+          <div v-if="product.salePrice" class="pricing">
+            <p>{{ product.salePrice }}</p>
+          </div>
+          <p v-else v-html="product.price_html"></p>
+          Stock:
+          {{ product.stock_quantity }} <br />
+          
+          <button
+            v-if="product.variations[0]"
+            @click="seeProductVariations(product.id, idProduct)"
+            class="btn btn-dark"
+          >
+            Voir les variables
+          </button>
+          <div v-show="products_id === idProduct">
+            <div
+              v-for="(variation, idVar) in variations"
+              v-b-modal.modal-1
+              :key="idVar"
             >
-              Voir les variables
-            </button>
-          </template>
-        </b-card>
-        <div v-show="showEdit">
-          <editProduct :idEditProduct="idEditProduct" :product="product" />
+              <button
+                v-for="(varia, idvaria) in variation.attributes"
+                :key="idvaria"
+                @click="seeProVar(variation, product)" class="btn btn-light"
+              >
+                {{ varia.name }}
+
+                {{ varia.option }}
+              </button>
+            </div>
+          </div>
+<br><br>
+          <button class="btn btn-danger" @click="deleteProduct(product.id)">supp</button>
+          <button class="btn btn-info" @click="showEditComponent(product.id)">edit</button>
+
+          <div v-show="showEdit">
+            <editProduct :idEditProduct="idEditProduct" :product="product" />
+          </div>
         </div>
       </div>
-    </section>
+  </div>
+   
     <seeProductVariant
       v-show="componentProVariant"
       :product="product"
@@ -169,8 +170,12 @@ export default {
 </script>
 
 <style scoped>
-.card-img img {
-  max-width: 300px;
-  max-height: 300px;
+.card {
+  margin: 1%;
+  max-width: 100%;
+}
+
+.btn-light{
+  margin: 1%;
 }
 </style>
