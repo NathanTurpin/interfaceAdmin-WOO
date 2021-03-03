@@ -1,12 +1,16 @@
 <template>
   <div class="container-fluid">
-     <div class="search-wrapper">
+    <div class="search-wrapper">
       <label>Search title:</label>
 
       <input type="text" v-model="search" placeholder="Search title.." />
     </div>
-  <div class="card-group">
-      <div class="card" v-for="(product, idProduct) in filteredList" :key="idProduct">
+    <div class="card-group">
+      <div
+        class="card"
+        v-for="(product, idProduct) in filteredList"
+        :key="idProduct"
+      >
         <img
           class="card-img-top img-fluid"
           v-if="product.images[0] !== undefined"
@@ -24,7 +28,7 @@
           <p v-else v-html="product.price_html"></p>
           Stock:
           {{ product.stock_quantity }} <br />
-          
+
           <button
             v-if="product.variations[0]"
             @click="seeProductVariations(product.id, idProduct)"
@@ -41,7 +45,8 @@
               <button
                 v-for="(varia, idvaria) in variation.attributes"
                 :key="idvaria"
-                @click="seeProVar(variation, product)" class="btn btn-light"
+                @click="seeProVar(variation, product)"
+                class="btn btn-light"
               >
                 {{ varia.name }}
 
@@ -49,17 +54,21 @@
               </button>
             </div>
           </div>
-<br><br>
-          <button class="btn btn-danger" @click="deleteProduct(product.id)">supp</button>
-          <button class="btn btn-info" @click="showEditComponent(product.id)">edit</button>
+          <br /><br />
+          <button class="btn btn-danger" @click="deleteProduct(product.id)">
+            supp
+          </button>
+          <button class="btn btn-info" @click="showEditComponent(product.id,idProduct)">
+            edit
+          </button>
 
-          <div v-show="showEdit">
+          <div v-show="showEdit && idTab === idProduct">
             <editProduct :idEditProduct="idEditProduct" :product="product" />
           </div>
         </div>
       </div>
-  </div>
-   
+    </div>
+
     <seeProductVariant
       v-show="componentProVariant"
       :product="product"
@@ -89,6 +98,7 @@ export default {
       produit_variant: [],
       componentProVariant: false,
       product: [],
+      idTab:null
     };
   },
   mounted() {
@@ -133,9 +143,10 @@ export default {
         });
     },
     // EDIT PRODUCT
-    showEditComponent(id) {
+    showEditComponent(id,idProduct) {
       this.showEdit = !this.showEdit;
       this.idEditProduct = id;
+      this.idTab = idProduct
     },
     // SEE PRODUCTS VARIATIONS
 
@@ -175,7 +186,7 @@ export default {
   max-width: 100%;
 }
 
-.btn-light{
+.btn-light {
   margin: 1%;
 }
 </style>
