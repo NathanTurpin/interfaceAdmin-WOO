@@ -106,10 +106,13 @@ export default {
   },
   computed: {
     filteredList() {
-      return this.products.filter((product) => {
+      return makeArray(this.products).filter((product) => {
         return product.name.toLowerCase().includes(this.search.toLowerCase());
       });
     },
+    makeArray(any) {
+      return Array.isArray(any) ? any : [];
+    }
   },
   methods: {
     // AFFICHE LES PRODUITS
