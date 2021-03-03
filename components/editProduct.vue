@@ -12,7 +12,6 @@
     <input type="text" v-model="nameEdit" placeholder="nom" />
     <input type="number" v-model="priceEdit" placeholder="€" />
     <button @click="editProduct()">valider</button>
-    <button @click="test"></button>
   </div>
 </template>
 
