@@ -5,17 +5,26 @@
 
     <!-- TERMES -->
     <section class="termes">
-      <div v-for="(terme,idTerme) in termes" :key="idTerme">
-      {{terme.name}} <button @click="addVariants(idTerme)">add variant</button>
-     
-      <input type="number" placeholder="€" v-model="termes[idTerme].regularPrice">
+      <div v-for="(terme, idTerme) in termes" :key="idTerme">
+        {{ terme.name }}
+
+        <input
+          type="number"
+          placeholder="€"
+          v-model="termes[idTerme].regularPrice"
+        />
+        <input type="file" @change="onFileSelected" />
+        <b-button id="button" @click="onUpload(idTerme)" pill variant="outline-secondary"
+          >Upload</b-button
+        >
+        <button  v-if="form.idIMG && !file && idTab === idTerme" @click="addVariants(idTerme)">add variant</button>
+       <p v-if=" file && idTab === idTerme">Uploading</p> 
+
       </div>
     </section>
 
     <!-- PRODUITS VARIANTS -->
-    <section class="variants">
-      
-    </section>
+    <section class="variants"></section>
   </div>
 </template>
 
@@ -26,17 +35,56 @@ export default {
   data() {
     return {
       token: localStorage.getItem("token"),
-    
+      form:{
+        idIMG: 0
+        },
+      selectedFile: null,
+      file: false,
+      idTab: null,
+
+
     };
   },
   mounted() {},
   methods: {
+    onFileSelected(event) {
+      this.selectedFile = event.target.files[0];
+    },
+    onUpload(idTerme) {
+      this.file = true;
+      this.idTab=idTerme
+      console.log(this.idTab)
+      console.log(idTerme)
+
+      const fd = new FormData();
+      fd.append("file", this.selectedFile);
+      fd.append("title", this.selectedFile.name);
+
+      console.log(this.selectedFile);
+      axios
+        .post(window.addresse + "wp-json/wp/v2/media", fd, {
+          onUploadProgress: (uploadEvent) => {
+            this.uploadPercentage = parseInt(
+              Math.round((uploadEvent.loaded / uploadEvent.total) * 100)
+            );
+          },
+          headers: { Authorization: "Bearer " + this.token },
+        })
+        .then(
+          (response) => (
+            (this.form.idIMG = response.data.id), (this.file = false), console.log(this.form.idIMG)
+
+          )
+        );
+    },
     addVariants(idTerme) {
-      console.log(this.termes[idTerme].name)
-      console.log(this.attributeID.name,this.attributeID.id)
+      this.file=false
+      console.log(this.termes[idTerme].name);
+      console.log(this.attributeID.name, this.attributeID.id);
       axios
         .post(
-          window.addresse + "wp-json/wc/v3/products/" +
+          window.addresse +
+            "wp-json/wc/v3/products/" +
             this.newProductId +
             "/variations",
           {
@@ -48,6 +96,11 @@ export default {
                 option: this.termes[idTerme].name,
               },
             ],
+             image: 
+              {
+                id: this.form.idIMG,
+              },
+            
           },
           {
             headers: {
@@ -55,9 +108,9 @@ export default {
             },
           }
         )
-        .then((response) => console.log(response))
+        .then((response) => console.log(response), this.form.idIMG=null)
         .catch((error) => console.log(error));
-     },
+    },
   },
 };
 </script>

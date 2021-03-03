@@ -63,11 +63,13 @@
         label-for="input-1"
       >
         <input type="file" @change="onFileSelected" />
-        <b-button id="button" @click="onUpload" pill variant="outline-secondary">Upload</b-button>
-        
+        <b-button id="button" @click="onUpload" pill variant="outline-secondary"
+          >Upload</b-button
+        >
+
         <progress max="100" :value.prop="uploadPercentage"></progress>
-        <p v-if="form.idIMG ">OK</p> 
-        <p v-if="!form.idIMG && file ">Uploading</p>
+        <p v-if="form.idIMG">OK</p>
+        <p v-if="!form.idIMG && file">Uploading</p>
       </b-form-group>
     </section>
 
@@ -218,13 +220,21 @@
                       </option>
                     </select>
                     {{ attributeID.id }}
-                    
                   </b-form-group>
-        <b-button id="button" @click="addProduct"  v-if="termes[0] && selectedAttributes" pill variant="outline-secondary">Choisir</b-button>
-        <p v-if="selectedAttributes && !termes[0]">En chargement</p>
+                  <b-button
+                    id="button"
+                    @click="addProduct"
+                    v-if="termes[0] && selectedAttributes"
+                    pill
+                    variant="outline-secondary"
+                    >Choisir</b-button
+                  >
+                  <p v-if="selectedAttributes && !termes[0]">En chargement</p>
 
                   <p v-if="newProductId && !produitBool">OK</p>
-                  <p v-if="!newProductId && produitBool">Ajout du produit ...</p>
+                  <p v-if="!newProductId && produitBool">
+                    Ajout du produit ...
+                  </p>
                   <!-- PRODUIT VARIANT -->
 
                   <br />
@@ -279,8 +289,8 @@ export default {
         idIMG: 0,
         type: "simple",
       },
-      file:false,
-      produitBool:false,
+      file: false,
+      produitBool: false,
       attributes: [],
       selectedAttributes: "",
       attributeID: "",
@@ -310,7 +320,7 @@ export default {
       this.selectedFile = event.target.files[0];
     },
     onUpload() {
-      this.file = true
+      this.file = true;
       const fd = new FormData();
       fd.append("file", this.selectedFile);
       fd.append("title", this.selectedFile.name);
@@ -325,12 +335,14 @@ export default {
           },
           headers: { Authorization: "Bearer " + this.token },
         })
-        .then((response) => (this.form.idIMG = response.data.id,
-        this.file=false
-        ));
+        .then(
+          (response) => (
+            (this.form.idIMG = response.data.id), (this.file = false)
+          )
+        );
     },
     addProduct() {
-      this.produitBool=true
+      this.produitBool = true;
       let termesName = [];
       for (let i = 0; i < this.termes.length; i++) {
         termesName.push(this.termes[i].name);
@@ -376,7 +388,9 @@ export default {
         )
         .then(
           (response) => (
-            (this.newProductId = response.data.id), console.log(response),this.produitBool=false
+            (this.newProductId = response.data.id),
+            console.log(response),
+            (this.produitBool = false)
           )
         );
     },
@@ -501,7 +515,7 @@ export default {
 ​ #input-2 {
   width: 20%;
 }
-#button{
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+#button {
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 </style>
