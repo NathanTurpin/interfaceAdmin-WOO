@@ -21,7 +21,7 @@
         >Upload</b-button
       >
       <input type="number" v-model="priceEdit" />
-      <button @click="editProVariant()">edit</button>
+      <button @click="newProductVariant()">edit</button>
       <p class="my-4">{{ produit_variant }}</p>
     </b-modal>
   </div>
@@ -84,17 +84,17 @@ export default {
         .then(
           (response) => (
             (this.form.idIMG = response.data.id),
-            (this.file = false),
-            this.newImg()
+            (this.file = false)
           )
         );
     },
-    async newImg() {
+     newProductVariant() {
       console.log(this.form.idIMG);
 
       const url =
         window.addresse + "/wp-json/wc/v3/products/"+this.product.id +"/variations/"+ this.produit_variant.id;
-      await axios
+        if(this.form.idIMG) {
+ axios
         .put(
           url,
           {
@@ -112,22 +112,14 @@ export default {
         .catch((error) => {
           console.log(error);
         });
-    },
-  },
-    editProVariant() {
-      alert(this.product.id);
-      alert(this.produit_variant.id);
-      const url =
-        window.addresse +
-        "/wp-json/wc/v3/products/" +
-        this.product.id +
-        "/variations/" +
-        this.produit_variant.id;
-      axios
+        }
+        else {
+           axios
         .put(
           url,
           {
             regular_price: this.priceEdit,
+            
           },
           {
             headers: {
@@ -139,7 +131,10 @@ export default {
         .catch((error) => {
           console.log(error);
         });
+        }
+      
     },
+  }
   
 };
 </script>

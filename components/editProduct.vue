@@ -1,16 +1,18 @@
 <template>
   <div>
     <div id="app">
-        <input type="file" @change="onFileSelected" />
-        <div id="preview">
-          <img v-if="url" :src="url" />
-        </div>
+      <input type="file" @change="onFileSelected" />
+      <div id="preview">
+        <img v-if="url" :src="url" />
       </div>
-      <b-button id="button" @click="onUpload" pill variant="outline-secondary"
-        >Upload</b-button>
+    </div>
+    <b-button id="button" @click="onUpload" pill variant="outline-secondary"
+      >Upload</b-button
+    >
     <input type="text" v-model="nameEdit" placeholder="nom" />
     <input type="number" v-model="priceEdit" placeholder="€" />
     <button @click="editProduct()">valider</button>
+    <button @click="test"></button>
   </div>
 </template>
 
@@ -32,6 +34,7 @@ export default {
       file: true,
     };
   },
+  mounted() {},
   methods: {
     onFileSelected(event) {
       this.selectedFile = event.target.files[0];
@@ -42,23 +45,23 @@ export default {
       const fd = new FormData();
       fd.append("file", this.selectedFile);
       fd.append("title", this.selectedFile.name);
+      // SUPPRIME L IMG
       const url =
-        window.addresse +
-        "wp-json/wp/v2/media/" +
-        this.product.images[0].id;
-        axios
-          .delete(url, {
-            data: {
-              force: true,
-            },
-            headers: {
-              Authorization: "Bearer " + this.token,
-            },
-          })
-          .then((res) => console.log(res))
-          .catch((error) => {
-            console.log(error);
-          });
+        window.addresse + "wp-json/wp/v2/media/" + this.product.images[0].id;
+      axios
+        .delete(url, {
+          data: {
+            force: true,
+          },
+          headers: {
+            Authorization: "Bearer " + this.token,
+          },
+        })
+        .then((res) => console.log(res))
+        .catch((error) => {
+          console.log(error);
+        });
+        // AJOUTE NOUVELLE IMG AU MEDIA
       axios
         .post(window.addresse + "wp-json/wp/v2/media", fd, {
           onUploadProgress: (uploadEvent) => {
@@ -70,51 +73,46 @@ export default {
         })
         .then(
           (response) => (
-            (this.form.idIMG = response.data.id),
-            (this.file = false),
-            this.newImg()
+            (this.form.idIMG = response.data.id), (this.file = false)
           )
         );
     },
-    async newImg() {
-      console.log(this.form.idIMG);
-      console.log(this.product.id)
-      const url =
-        window.addresse +
-        "/wp-json/wc/v3/products/" +
-        this.product.id;
-        
-      await axios
-        .put(
-          url,
-          {
-           images: [
-              {
-                id: this.form.idIMG,
-              },
-            ],
-          },
-          {
-            headers: {
-              Authorization: "Bearer " + this.token,
-            },
-          }
-        )
-        .then((res) => console.log(res))
-        .catch((error) => {
-          console.log(error);
-        });
-    },
     editProduct() {
-      alert(this.idEditProduct);
+      // EDIT NEW PRODUIT
       const url =
         window.addresse + "wp-json/wc/v3/products/" + this.idEditProduct;
-      axios
+      if (this.form.idImg) {
+        axios
+          .put(
+            url,
+            {
+              name: this.nameEdit,
+              regular_price: this.priceEdit,
+              images: [
+                {
+                  id: this.form.idIMG,
+                },
+              ],
+            },
+            {
+              headers: {
+                Authorization: "Bearer " + this.token,
+              },
+            }
+          )
+          .then((res) => console.log(res))
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+      else {
+        axios
         .put(
           url,
           {
             name: this.nameEdit,
             regular_price: this.priceEdit,
+           
           },
           {
             headers: {
@@ -126,7 +124,8 @@ export default {
         .catch((error) => {
           console.log(error);
         });
-    },
+      }
+    }
   },
 };
 </script>
