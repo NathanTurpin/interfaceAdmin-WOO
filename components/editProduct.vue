@@ -9,9 +9,22 @@
     <b-button id="button" @click="onUpload" pill variant="outline-secondary"
       >Upload</b-button
     >
-    <input type="text" v-model="nameEdit" placeholder="nom" />
-    <input type="number" v-model="priceEdit" placeholder="€" />
+    <input type="text" v-model="form.nameEdit" placeholder="nom" />
+    <input
+      type="number"
+      v-show="(product.type = 'simple')"
+      v-model="form.priceEdit"
+      placeholder="€"
+    />
+    <select v-model="form.statusEdit">
+      <option disabled value="">Please select one</option>
+      <option >publish</option>
+      <option >private</option>
+
+    </select>
+    <span>Selected: {{ form.statusEdit }}</span>
     <button @click="editProduct()">valider</button>
+    {{ product }}
   </div>
 </template>
 
@@ -22,11 +35,12 @@ export default {
   props: ["idEditProduct", "product"],
   data() {
     return {
-      nameEdit: this.product.name,
-      priceEdit: this.product.regular_price,
       token: localStorage.getItem("token"),
       form: {
         idIMG: 0,
+        statusEdit:'',
+        nameEdit: this.product.name,
+        priceEdit: this.product.regular_price,
       },
       selectedFile: null,
       url: null,
@@ -60,7 +74,7 @@ export default {
         .catch((error) => {
           console.log(error);
         });
-        // AJOUTE NOUVELLE IMG AU MEDIA
+      // AJOUTE NOUVELLE IMG AU MEDIA
       axios
         .post(window.addresse + "wp-json/wp/v2/media", fd, {
           onUploadProgress: (uploadEvent) => {
@@ -85,8 +99,9 @@ export default {
           .put(
             url,
             {
-              name: this.nameEdit,
-              regular_price: this.priceEdit,
+              name: this.form.nameEdit,
+              regular_price: this.form.priceEdit,
+              status: this.form.statusEdit,
               images: [
                 {
                   id: this.form.idIMG,
@@ -103,28 +118,28 @@ export default {
           .catch((error) => {
             console.log(error);
           });
-      }
-      else {
+      } else {
         axios
-        .put(
-          url,
-          {
-            name: this.nameEdit,
-            regular_price: this.priceEdit,
-           
-          },
-          {
-            headers: {
-              Authorization: "Bearer " + this.token,
+          .put(
+            url,
+            {
+              name: this.form.nameEdit,
+              regular_price: this.form.priceEdit,
+              status: this.form.statusEdit,
+
             },
-          }
-        )
-        .then((res) => console.log(res))
-        .catch((error) => {
-          console.log(error);
-        });
+            {
+              headers: {
+                Authorization: "Bearer " + this.token,
+              },
+            }
+          )
+          .then((res) => console.log(res))
+          .catch((error) => {
+            console.log(error);
+          });
       }
-    }
+    },
   },
 };
 </script>

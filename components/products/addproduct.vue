@@ -120,8 +120,10 @@
                     ></b-form-input>
                   </b-form-group>
                   <!-- QTE STOCK -->
-
+                  <input type="checkbox" id="checkbox" v-model="form.manageStock" />
+                  <label for="checkbox" v-if="!form.manageStock ">Gérer le stock</label>
                   <b-form-group
+                  v-if="form.manageStock"
                     id="input-group-2"
                     label="Quantité de stock :"
                     label-for="input-2"
@@ -256,8 +258,7 @@
     </section>
     <section class="variable"></section>
     <section v-show="selectedProduct === 'Simple'">
-      <button v-if="form.idIMG" @click="addProduct">add</button>
-      <p v-else>manque image</p>
+      <button  @click="addProduct">add</button>
     </section>
   </div>
 </template>
@@ -288,6 +289,7 @@ export default {
         stock_quantity: null,
         idIMG: 0,
         type: "simple",
+        manageStock: false,
       },
       file: false,
       produitBool: false,
@@ -342,19 +344,20 @@ export default {
         );
     },
     addProduct() {
+      console.log(this.form.manageStock)
       this.produitBool = true;
       let termesName = [];
       for (let i = 0; i < this.termes.length; i++) {
         termesName.push(this.termes[i].name);
       }
-      console.log(termesName);
 
       if (this.selectedProduct === "Simple") {
         this.form.type = "simple";
       } else {
         this.form.type = "variable";
       }
-      axios
+
+      if(this.form.idIMG){axios
         .post(
           window.addresse + "wp-json/wc/v3/products",
           {
@@ -362,7 +365,7 @@ export default {
             description: this.form.description,
             short_description: this.form.short_description,
             regular_price: this.form.price,
-            manage_stock: true,
+            manage_stock: this.form.manageStock,
             sale_price: this.form.salePrice,
             stock_quantity: this.form.stock_quantity,
             cross_sell_ids: this.crossSellId,
@@ -392,7 +395,44 @@ export default {
             console.log(response),
             (this.produitBool = false)
           )
+        );}
+        else{
+          axios
+        .post(
+          window.addresse + "wp-json/wc/v3/products",
+          {
+            name: this.form.name,
+            description: this.form.description,
+            short_description: this.form.short_description,
+            regular_price: this.form.price,
+            manage_stock: this.form.manageStock,
+            sale_price: this.form.salePrice,
+            stock_quantity: this.form.stock_quantity,
+            cross_sell_ids: this.crossSellId,
+            upsell_ids: this.upSellId,
+            categories: this.categoriesId,
+            type: this.form.type,
+            attributes: [
+              {
+                id: this.attributeID.id,
+                name: this.attributeID.name,
+                visible: true,
+                variation: true,
+                options: termesName,
+              },
+            ]
+          },
+          { headers: { Authorization: "Bearer " + this.token } }
+        )
+        .then(
+          (response) => (
+            (this.newProductId = response.data.id),
+            console.log(response),
+            (this.produitBool = false)
+          )
         );
+        }
+      
     },
     getProduct() {
       axios
