@@ -1,55 +1,75 @@
 <template>
   <div class="main">
-    <div>
-      <ul v-for="(commande, commandeId) in commandes" :key="commandeId">
-        <li>{{ commande }}</li>
-        <li>{{ commande.id }} {{ commande.status }} {{ commande.total }}</li>
+    <!-- <div>
+      <div v-for="(commande) in commandes" :key="commande.id">
+        <p>{{ commande.id }} {{ commande.status }} {{ commande.total }}</p>
        
-        <ul v-for="commandeItem in commande.line_items">
-          <li>{{ commandeItem.product_id}} {{ commandeItem.name}}  {{commandeItem.quantity}}  {{commandeItem.total}}</li>
+        <div v-for="commandeItem in commande.line_items" :key="commandeItem.id">
+          {{commandeItem.id}}
 
-        </ul>
-        <li><commandeIDAdmin  /></li>
-      </ul>
+          <p>{{ commandeItem.product_id}} {{ commandeItem.name}}  {{commandeItem.quantity}}  {{commandeItem.total}}</p>
+        </div>
+         <li><commandeIDAdmin  /></li> 
+     </div>
+    </div> -->
+    <button @click="getCommandes">ee</button>
+    <p v-show="this.notif>=0"> {{ notif }}</p>
+    <div v-for="commande in commandes" :key="commande.id">
+      {{ commande }}
     </div>
-<button @click="test"></button>
-    
   </div>
 </template>
 
 <script>
 import axios from "axios";
-import commandeIDAdmin from '@/components/commandeIDAdmin'
+import commandeIDAdmin from "@/components/commandeIDAdmin";
 
 export default {
-  components:{
-    commandeIDAdmin
-},
+  components: {
+    commandeIDAdmin,
+  },
   data() {
     return {
+      notif: -1,
       commandes: [],
-
-
+      lastCommandes: [],
       token: localStorage.getItem("token"),
     };
   },
   mounted() {
-    this.getCommandesAdmin();
+    // AFFICHE LES CATEGORIES
+    // setInterval(function () {
+    //   self.notification();
+    // }, 8000);
+    var self = this;
+    setInterval(function () {
+      self.getCommandes();
+    }, 10000);
   },
   methods: {
-    getCommandesAdmin() {
-      axios
+     async getCommandes() {
+        
+      await axios
         .get(window.addresse + "wp-json/wc/v3/orders", {
-          headers: { Authorization: "Bearer " + this.token },
+          headers: {
+            Authorization: "Bearer " + this.token,
+          },
         })
-        .then((response) => (this.commandes = response.data))
-        .catch((e) => e.response)
+        .then(
+          (response) => (
+            (this.commandes = response.data), console.log("actuel" ), console.log(this.commandes.length)
+          )
+        )
+        .catch((error) => console.log(error));
+        
       
-    },
-    test() {
-        for(let i=0;i < this.commandes.length;i++){
-      return  console.log(this.commandes[i].line_items[1])
-    }
+     if(this.commandes.length>this.lastCommandes.length){
+       this.notif+=1
+     }
+      this.lastCommandes = this.commandes;
+
+      console.log("last:")
+      console.log( this.lastCommandes.length)
     }
   },
 };

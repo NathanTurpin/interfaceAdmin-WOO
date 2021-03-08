@@ -5,7 +5,7 @@
 
       <input type="text" v-model="search" placeholder="Search title.." />
     </div>
-    <div class="card-group">
+    <div class="row row-cols-1 row-cols-md-5 m-l-2">
       <div
         class="card"
         v-for="(product, idProduct) in filteredList"
@@ -21,14 +21,45 @@
           <h5 class="card-title">
             <h3>{{ product.name }}</h3>
           </h5>
-          <p class="card-text" v-html="product.description"></p>
           <div v-if="product.salePrice" class="pricing">
             <p>{{ product.salePrice }}</p>
           </div>
           <p v-else v-html="product.price_html"></p>
-          Stock:
-          {{ product.stock_quantity }} <br />
-
+          <p>{{product.status}}</p>
+          <button class="btn btn-secondary" @click="infoProd(idProduct)">
+            Info produit
+          </button>
+          <div
+            v-show="infoProduit && products_id === idProduct"
+            class="table-responsive"
+          >
+            <h5>Description</h5>
+            <p v-html="product.description"></p>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Stock</th>
+                  <td>{{ product.stock_quantity }}</td>
+                </tr>
+                <tr>
+                  <th scope="col">Status du stock</th>
+                  <td>{{ product.stock_status }}</td>
+                </tr>
+                <tr>
+                  <th scope="col">Date</th>
+                  <td>{{ product.date_created }}</td>
+                </tr>
+                <tr>
+                  <th scope="col">Vente total</th>
+                  <td>{{ product.total_sales }}</td>
+                </tr>
+                <tr>
+                  <th scope="col">Categories</th>
+                  <td>{{ product.categories[0].name }}</td>
+                </tr>
+              </thead>
+            </table>
+          </div>
           <button
             v-if="product.variations[0]"
             @click="seeProductVariations(product.id, idProduct)"
@@ -58,7 +89,10 @@
           <button class="btn btn-danger" @click="deleteProduct(product.id)">
             supp
           </button>
-          <button class="btn btn-info" @click="showEditComponent(product.id,idProduct)">
+          <button
+            class="btn btn-info"
+            @click="showEditComponent(product.id, idProduct)"
+          >
             edit
           </button>
 
@@ -88,6 +122,7 @@ export default {
   },
   data() {
     return {
+      infoProduit: false,
       search: "",
       products: [],
       token: localStorage.getItem("token"),
@@ -98,7 +133,7 @@ export default {
       produit_variant: [],
       componentProVariant: false,
       product: [],
-      idTab:null
+      idTab: null,
     };
   },
   mounted() {
@@ -109,17 +144,7 @@ export default {
       return this.products.filter((product) => {
         return product.name.toLowerCase().includes(this.search.toLowerCase());
       });
-      
     },
-    // filteredList() {
-    //   return this.products.filter((product) => {
-    //   return this.makeArray(this.products).filter((product) => {
-    //     return product.name.toLowerCase().includes(this.search.toLowerCase());
-    //   });
-    // })},
-    // makeArray(any) {
-    //   return Array.isArray(any) ? any : [];
-    // }
   },
   methods: {
     // AFFICHE LES PRODUITS
@@ -153,10 +178,10 @@ export default {
         });
     },
     // EDIT PRODUCT
-    showEditComponent(id,idProduct) {
+    showEditComponent(id, idProduct) {
       this.showEdit = !this.showEdit;
       this.idEditProduct = id;
-      this.idTab = idProduct
+      this.idTab = idProduct;
     },
     // SEE PRODUCTS VARIATIONS
 
@@ -186,6 +211,10 @@ export default {
       this.componentProVariant = true;
       this.product = product;
     },
+    infoProd(idProduct) {
+      this.products_id = idProduct;
+      this.infoProduit = !this.infoProduit;
+    },
   },
 };
 </script>
@@ -193,10 +222,14 @@ export default {
 <style scoped>
 .card {
   margin: 1%;
-  max-width: 100%;
 }
-
+.card-body {
+  padding: inherit;
+  margin:0% 0% 2% -2% ;
+}
 .btn-light {
+}
+.btn {
   margin: 1%;
 }
 </style>
