@@ -1,22 +1,85 @@
 <template>
   <div class="main">
-    <!-- <div>
-      <div v-for="(commande) in commandes" :key="commande.id">
-        <p>{{ commande.id }} {{ commande.status }} {{ commande.total }}</p>
-       
-        <div v-for="commandeItem in commande.line_items" :key="commandeItem.id">
-          {{commandeItem.id}}
+    <p v-show="this.notif >= 0">{{ notif }}</p>
+    <button @click="getProductImg">cc</button>
+    {{ idProdImg }} <br />
+    <br />
+    <div class="table-responsive">
+      <table class="table" v-for="commande in commandes">
+        <thead>
+          <tr>
+            <th>{{ commande.id }}</th>
+            <th>{{ commande.order_key }}</th>
+            <th>{{ commande.date_created }}</th>
+          </tr>
+        </thead>
+        <tbody v-for="(item,id) in commande.line_items" :key="id">
+          <tr>
+            <td></td>
+            <td>
+              <p v-if="item.variation_id">ID variable</p>
+              <p v-else>ID produit</p>
+            </td>
+            <td>Nom</td>
+            <td>Quantité</td>
+          </tr>
+          <tr>
+            <td>produits</td>
+            <td>
+              <p v-if="item.variation_id">{{ item.variation_id }}</p>
+              <p v-else>{{ item.product_id }}</p>
+            </td>
 
-          <p>{{ commandeItem.product_id}} {{ commandeItem.name}}  {{commandeItem.quantity}}  {{commandeItem.total}}</p>
-        </div>
-         <li><commandeIDAdmin  /></li> 
-     </div>
-    </div> -->
-    <button @click="getCommandes">ee</button>
-    <p v-show="this.notif>=0"> {{ notif }}</p>
-    <div v-for="commande in commandes" :key="commande.id">
-      {{ commande }}
+            <td>{{ item.name }}</td>
+            <td>{{ item.quantity }}</td>
+
+            <div
+              class="tdImg"
+              v-if="commande.line_items[id].id =item.id "
+              v-show=" item.variation_id "
+            >
+            {{commande.line_items[id].id }}{{item.id}}
+              <div v-for="variant in productsVariants" >
+                <div v-for="vari in variant" >
+                  <div v-if="item.variation_id === vari.id">
+                    <td>
+                      <img
+                        class="img-fluid"
+                        v-if="vari.image !== undefined"
+                        :src="vari.image.src"
+                        alt="Card image cap"
+                      />
+                    </td>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="tdImg" v-show="!item.variation_id">
+              <div v-for="(product, id) in products">
+                <div v-if="item.product_id === product.id">
+                  <td>
+                    <img
+                      class="img-fluid"
+                      v-if="product.images[0] !== undefined"
+                      :src="product.images[0].src"
+                      alt="Card image cap"
+                    />
+                  </td>
+                </div>
+              </div>
+            </div>
+          </tr>
+        </tbody>
+        <tfoot>
+          ...
+        </tfoot>
+      </table>
     </div>
+    <!-- {{ commande.status }} 
+      {{ commande.total }} 
+      {{ commande.billing }} -->
+    <!-- 
+      fin -->
   </div>
 </template>
 
@@ -33,22 +96,21 @@ export default {
       notif: -1,
       commandes: [],
       lastCommandes: [],
+      idProdImg: [],
+      idProdVarImg: [],
+      products: [],
+      productsVariants: [],
       token: localStorage.getItem("token"),
     };
   },
   mounted() {
-    // AFFICHE LES CATEGORIES
-    // setInterval(function () {
-    //   self.notification();
-    // }, 8000);
     var self = this;
     setInterval(function () {
       self.getCommandes();
     }, 10000);
   },
   methods: {
-     async getCommandes() {
-        
+    async getCommandes() {
       await axios
         .get(window.addresse + "wp-json/wc/v3/orders", {
           headers: {
@@ -56,24 +118,59 @@ export default {
           },
         })
         .then(
-          (response) => (
-            (this.commandes = response.data), console.log("actuel" ), console.log(this.commandes.length)
-          )
+          (response) => (this.commandes = response.data)
+          // console.log("actuel"),
+          // console.log(this.commandes.length)
         )
         .catch((error) => console.log(error));
-        
-      
-     if(this.commandes.length>this.lastCommandes.length){
-       this.notif+=1
-     }
+
+      if (this.commandes.length > this.lastCommandes.length) {
+        this.notif += 1;
+        this.getProductImg();
+      }
       this.lastCommandes = this.commandes;
 
-      console.log("last:")
-      console.log( this.lastCommandes.length)
-    }
+      // console.log("last:");
+      // console.log(this.lastCommandes.length);
+    },
+    getProductImg() {
+      this.idProdImg = [];
+      for (let i = 0; i < this.commandes.length; i++) {
+        for (let j = 0; j < this.commandes[i].line_items.length; j++) {
+          this.idProdImg.push(this.commandes[i].line_items[j].product_id);
+        }
+      }
+
+      this.idProdImg.forEach((el) =>
+        axios
+          .get(window.addresse + "/wp-json/wc/v3/products/" + el, {
+            headers: {
+              Authorization: "Bearer " + this.token,
+            },
+          })
+          .then((response) => this.products.push(response.data))
+          .catch((error) => console.log(error))
+      );
+      this.idProdImg.forEach((el) =>
+        axios
+          .get(
+            window.addresse + "/wp-json/wc/v3/products/" + el + "/variations",
+            {
+              headers: {
+                Authorization: "Bearer " + this.token,
+              },
+            }
+          )
+          .then((response) => this.productsVariants.push(response.data))
+          .catch((error) => console.log(error))
+      );
+    },
   },
 };
 </script>
 
-<style>
+<style scoped>
+.tdImg {
+  max-width: 20%;
+}
 </style>
