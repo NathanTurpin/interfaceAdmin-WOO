@@ -39,7 +39,6 @@
               >
                 <b-dropdown-item to="/categories">Catégories</b-dropdown-item>
                 <b-dropdown-item to="/attributs">Attributs</b-dropdown-item>
-                <b-dropdown-item to="/seeVariations">variations</b-dropdown-item>
 
               </b-dropdown>
             </li>
