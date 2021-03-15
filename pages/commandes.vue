@@ -1,99 +1,146 @@
 <template>
   <div class="main">
-    <p v-show="this.notif >= 0">{{ notif }}</p>
-    <button @click="getProductImg">cc</button>
-    {{ idProdImg }} <br />
-    <br />
-    <div v-for="(t,id) in test" :key="id">
-      {{t}}
-      <!-- <div v-for="x in t">
-         {{x[id]}}
-       <br><br>
-
-      </div> -->
-
-      <div v-for="commandes in ">
-
+    <div >
+      <div
+        v-if="ready === 0"
+        id="chargement"
+        style="
+          width: 150px;
+          height: 50px;
+          position: absolute;
+          top: 45%;
+          left: 45%;
+          color: red;
+          font-weight: bold;
+          font-size: 14px;
+        "
+      >
+        <img src="../static/loader.gif" /> Chargement ...
       </div>
-    </div>
-    <div class="table-responsive">
-      <table class="table" v-for="commande in commandes">
-        <thead>
+      <div  v-for="(commande, idCommande) in commandes"
+        :key="idCommande">
+      <table
+        class="table table-bordered"
+       v-if="commande.status === 'pending'"
+      >
+        <thead v-if="commande  ">
           <tr>
-            <th>{{ commande.id }}</th>
-            <th>{{ commande.order_key }}</th>
-            <th>{{ commande.date_created }}</th>
+            <th class="table-dark titreCommande" scope="col">
+              <h3>{{ commande.id }}</h3>
+              <h5>{{ commande.order_key }} | 
+              {{test(commande.date_created)}} {{date}}
+              </h5>
+              <h5>{{ commande.total }} €</h5>
+            </th>
           </tr>
         </thead>
-        <tbody v-for="(item,id) in commande.line_items" :key="id">
-          <tr>
-            <td></td>
-            <td>
-              <p v-if="item.variation_id">ID variable</p>
-              <p v-else>ID produit</p>
-            </td>
-            <td>Nom</td>
-            <td>Quantité</td>
-          </tr>
-          <tr>
-            <td>produits</td>
-            <td>
-              <p v-if="item.variation_id">{{ item.variation_id }}</p>
-              <p v-else>{{ item.product_id }}</p>
-            </td>
-
-            <td>{{ item.name }}</td>
-            <td>{{ item.quantity }}</td>
-
-            <div
-              class="tdImg"
-              v-if="commande.line_items[id].id =item.id "
-              v-show=" item.variation_id "
-            >
-            {{commande.line_items[id].id }}{{item.id}}
-              <div v-for="variant in productsVariants" >
-                <div v-for="vari in variant" >
-                  <div v-if="item.variation_id === vari.id">
-                    <td>
-                      <img
-                        class="img-fluid"
-                        v-if="vari.image !== undefined"
-                        :src="vari.image.src"
-                        alt="Card image cap"
-                      />
-                    </td>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="tdImg" v-if="commande.line_items[id].id ===item.id " v-show="!item.variation_id">
-            {{commande.line_items[id].id }}{{item.id}}
-
-              <div v-for="(product, id) in products">
-                <div v-if="item.product_id === product.id">
-                  <td>
-                    <img
-                      class="img-fluid"
-                      v-if="product.images[0] !== undefined"
-                      :src="product.images[0].src"
-                      alt="Card image cap"
-                    /> 
-                  </td>
-                </div>
-              </div>
-            </div>
-          </tr>
+        <tbody
+          class="tdBody"
+          v-for="(item, id) in commande.line_items"
+          :key="id"
+        >
+          <div v-if="item.variation_id != 0">
+            <tr class="table-info" v-if="id === 0">
+              <td>ID_variant</td>
+              <td>Nom_variant</td>
+              <td>Quantité</td>
+              <td>Prix unitaire</td>
+              <td>Prix total HT</td>
+              <td>Image produit</td>
+            </tr>
+            <tr>
+              <td>{{ item.variation_id }}</td>
+              <td class="tdNameVar">{{ item.name }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.price }} €</td>
+              <td>{{ item.subtotal }} €</td>
+              <td
+                class="tdImg"
+                v-if="listeCommande[idCommande][id] !== undefined"
+              >
+                <img
+                  class="img-fluid"
+                  v-if="listeCommande[idCommande][id].image !== undefined"
+                  :src="listeCommande[idCommande][id].image.src"
+                  alt="Card image cap"
+                />
+              </td>
+            </tr>
+          </div>
+          <div v-if="item.variation_id === 0">
+            <tr class="table-info" v-if="id === 0">
+              <td>ID_produit</td>
+              <td>Nom</td>
+              <td>Quantité</td>
+              <td>Prix unitaire</td>
+              <td>Prix total HT</td>
+              <td>Image produit</td>
+            </tr>
+            <tr>
+              <td>{{ item.product_id }}</td>
+              <td>{{ item.name }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.price }} €</td>
+              <td>{{ item.subtotal }} €</td>
+              <td
+                class="tdImg"
+                v-if="listeCommande[idCommande][id] !== undefined"
+              >
+                <img
+                  class="img-fluid"
+                  v-if="listeCommande[idCommande][id].images[0] !== undefined"
+                  :src="listeCommande[idCommande][id].images[0].src"
+                  alt="Card image cap"
+                />
+              </td>
+            </tr>
+          </div>
         </tbody>
         <tfoot>
-          ...
+          <tr>
+            <td class="tdFooter">
+              <h4>
+                {{ commande.billing.first_name }}
+                {{ commande.billing.last_name }}
+              </h4>
+
+              <h6>Info client :</h6>
+              <div>
+                <p class="infoClient1">
+                  {{ commande.billing.address_1 }}
+                  {{ commande.billing.address_2 }}
+                  {{ commande.billing.city }}
+                  {{ commande.billing.postcode }}
+                  {{ commande.billing.country }}
+                </p>
+                <p class="infoClient1">
+                  {{ commande.billing.email }}
+                </p>
+                <p>
+                  {{ commande.billing.phone }}
+                </p>
+              </div>
+            </td>
+          </tr>
+          <tr class="trFooterSelect">
+            <select v-model="form.statusEdit">
+              <option disabled value="">{{ commande.status }}</option>
+              <option>completed</option>
+            </select>
+            <span>Selected: {{ form.statusEdit }}</span>
+
+            <button
+              type="button"
+              class="btn btn-light"
+              @click="editOrders(commande.id)"
+            >
+              valider
+            </button>
+          </tr>
         </tfoot>
       </table>
+      </div>
     </div>
-    <!-- {{ commande.status }} 
-      {{ commande.total }} 
-      {{ commande.billing }} -->
-    <!-- 
-      fin -->
   </div>
 </template>
 
@@ -107,24 +154,35 @@ export default {
   },
   data() {
     return {
-      notif: -1,
-      test: [[]],
+      form: {
+        statusEdit: "",
+      },
+      date:"",
+      ready: 0,
       commandes: [],
+      commandesLire: [],
       lastCommandes: [],
-      idProdImg: [],
-      idProdVarImg: [],
-      products: [],
-      productsVariants: [],
       token: localStorage.getItem("token"),
+      listeCommande: [],
+      listeCommandeLire: [],
+      adresse: window.addresse + "/assets/loader.gif",
     };
+  },
+  computed: {
+    
   },
   mounted() {
     var self = this;
+    self.getCommandes();
     setInterval(function () {
       self.getCommandes();
-    }, 10000);
+    }, 40000);
   },
   methods: {
+    test(date){
+      date = date.replace("T"," ")
+      this.date = date
+    },
     async getCommandes() {
       await axios
         .get(window.addresse + "wp-json/wc/v3/orders", {
@@ -132,63 +190,111 @@ export default {
             Authorization: "Bearer " + this.token,
           },
         })
-        .then(
-          (response) => (this.commandes = response.data)
-          // console.log("actuel"),
-          // console.log(this.commandes.length)
-        )
+        .then((response) => (this.commandesLire = response.data))
         .catch((error) => console.log(error));
+      if (this.commandesLire.length > this.lastCommandes.length) {
+        this.ready = 0;
+        for (let i = 0; i < this.commandesLire.length; i++) {
+          // pour chaque commande on crée un tableau des produits commandés
+          var produit = [];
+          for (let j = 0; j < this.commandesLire[i].line_items.length; j++) {
+            // pour chaque ligne dans une commande on recupère les infos du produits commandé
+            if (
+              this.commandesLire[i].line_items[j].product_id !== "undefined"
+            ) {
+              await axios
+                .get(
+                  window.addresse +
+                    "/wp-json/wc/v3/products/" +
+                    this.commandesLire[i].line_items[j].product_id,
+                  {
+                    headers: {
+                      Authorization: "Bearer " + this.token,
+                    },
+                  }
+                )
+                .then((response) => (produit[j] = response.data)) // on met le produit trouvé dans le tableau
+                .catch((error) => console.log("toto"));
 
-      if (this.commandes.length > this.lastCommandes.length) {
-        this.notif += 1;
-        this.getProductImg();
-      }
-      this.lastCommandes = this.commandes;
+              if (this.commandesLire[i].line_items[j].variation_id) {
+                // si le produit est un variant on va chercher la variation du produit
+                await axios
+                  .get(
+                    window.addresse +
+                      "/wp-json/wc/v3/products/" +
+                      produit[j].id +
+                      "/variations/" +
+                      this.commandesLire[i].line_items[j].variation_id,
+                    {
+                      headers: {
+                        Authorization: "Bearer " + this.token,
+                      },
+                    }
+                  )
+                  .then((response) => (produit[j] = response.data)) // on met le produit variant trouvé dans le tableau
+                  .catch((error) => console.log(error));
+              }
+            }
+          }
 
-      // console.log("last:");
-      // console.log(this.lastCommandes.length);
-    },
-    getProductImg() {
-      this.idProdImg = [];
-      this.test= [];
-
-      for (let i = 0; i < this.commandes.length; i++) {
-        for (let j = 0; j < this.commandes[i].line_items.length; j++) {
-          this.idProdImg.push(this.commandes[i].line_items[j].product_id);
+          this.listeCommandeLire[i] = produit; // le tableau des produits de la commande est placé dans le tableau des commandes
         }
+        this.lastCommandes = this.commandesLire;
       }
-
-      this.idProdImg.forEach((el) =>
-        axios
-          .get(window.addresse + "/wp-json/wc/v3/products/" + el, {
+      this.commandes = this.commandesLire;
+      this.listeCommande = this.listeCommandeLire;
+      this.ready = 1;
+       this.test(date)
+    },
+    editOrders(idCommande) {
+      const url = window.addresse + "/wp-json/wc/v3/orders/" + idCommande;
+      axios
+        .put(
+          url,
+          {
+            status: this.form.statusEdit,
+          },
+          {
             headers: {
               Authorization: "Bearer " + this.token,
             },
-          })
-          .then((response) => this.products.push(response.data))
-          .catch((error) => console.log(error))
-      );
-      this.idProdImg.forEach((el) =>
-        axios
-          .get(
-            window.addresse + "/wp-json/wc/v3/products/" + el + "/variations",
-            {
-              headers: {
-                Authorization: "Bearer " + this.token,
-              },
-            }
-          )
-          .then((response) => this.productsVariants.push(response.data))
-          .catch((error) => console.log(error))
-      );
-      this.test.push()
+          }
+        )
+        .then((res) => console.log(res), console.log("modif ok"),this.getCommandes())
+        .catch((error) => console.log(error));
     },
   },
 };
 </script>
 
 <style scoped>
+table {
+  width: 70%;
+  margin: auto;
+  margin-bottom: 2%;
+}
+.titreCommande {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.titreCommande h5 {
+  padding-top: 0.5%;
+}
 .tdImg {
-  max-width: 20%;
+  width: 13%;
+}
+.tdBody td {
+  width: 15%;
+}
+.tdFooter {
+  display: flex;
+  justify-content: space-between;
+}
+.infoClient1 {
+  margin-bottom: -2%;
+}
+.trFooterSelect {
+  float: right;
 }
 </style>
