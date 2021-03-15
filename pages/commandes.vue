@@ -4,6 +4,18 @@
     <button @click="getProductImg">cc</button>
     {{ idProdImg }} <br />
     <br />
+    <div v-for="(t,id) in test" :key="id">
+      {{t}}
+      <!-- <div v-for="x in t">
+         {{x[id]}}
+       <br><br>
+
+      </div> -->
+
+      <div v-for="commandes in ">
+
+      </div>
+    </div>
     <div class="table-responsive">
       <table class="table" v-for="commande in commandes">
         <thead>
@@ -54,7 +66,9 @@
                 </div>
               </div>
             </div>
-            <div class="tdImg" v-show="!item.variation_id">
+            <div class="tdImg" v-if="commande.line_items[id].id ===item.id " v-show="!item.variation_id">
+            {{commande.line_items[id].id }}{{item.id}}
+
               <div v-for="(product, id) in products">
                 <div v-if="item.product_id === product.id">
                   <td>
@@ -63,7 +77,7 @@
                       v-if="product.images[0] !== undefined"
                       :src="product.images[0].src"
                       alt="Card image cap"
-                    />
+                    /> 
                   </td>
                 </div>
               </div>
@@ -94,6 +108,7 @@ export default {
   data() {
     return {
       notif: -1,
+      test: [[]],
       commandes: [],
       lastCommandes: [],
       idProdImg: [],
@@ -135,6 +150,8 @@ export default {
     },
     getProductImg() {
       this.idProdImg = [];
+      this.test= [];
+
       for (let i = 0; i < this.commandes.length; i++) {
         for (let j = 0; j < this.commandes[i].line_items.length; j++) {
           this.idProdImg.push(this.commandes[i].line_items[j].product_id);
@@ -164,6 +181,7 @@ export default {
           .then((response) => this.productsVariants.push(response.data))
           .catch((error) => console.log(error))
       );
+      this.test.push()
     },
   },
 };
