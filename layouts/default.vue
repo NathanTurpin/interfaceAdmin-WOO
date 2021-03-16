@@ -44,12 +44,16 @@
             </li>
 
             <li class="nav-item">
-              <nuxt-link
+              
+               <b-dropdown
                 class="nav-link active"
-                aria-current="page"
-                to="/commandes"
-                >Commandes</nuxt-link
+                split
+                split-to="/commandes"
+                text="Commandes"
               >
+                <b-dropdown-item to="/ordersDone">Commande terminée</b-dropdown-item>
+
+              </b-dropdown>
             </li>
             <li class="nav-item">
               <nuxt-link

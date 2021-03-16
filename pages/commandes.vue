@@ -20,9 +20,9 @@
       <div v-for="(commande, idCommande) in commandes" :key="idCommande">
         <table
           class="table table-bordered"
-         
+          v-if="commande.status != 'completed'"
         >
-          <thead v-if="commande">
+          <thead v-if="commande" @click="showAllOrder(idCommande)">
             <tr>
               <th class="table-dark titreCommande" scope="col">
                 <h3>{{ commande.id }}</h3>
@@ -35,6 +35,7 @@
             </tr>
           </thead>
           <tbody
+          v-show="showAll && idTab === idCommande"
             class="tdBody"
             v-for="(item, id) in commande.line_items"
             :key="id"
@@ -96,7 +97,7 @@
               </tr>
             </div>
           </tbody>
-          <tfoot>
+          <tfoot v-show="showAll && idTab === idCommande">
             <tr>
               <td class="tdFooter">
                 <h4>
@@ -158,6 +159,8 @@ export default {
       form: {
         statusEdit: "",
       },
+      showAll: false,
+      idTab:null,
       date: "",
       ready: 0,
       commandes: [],
@@ -266,6 +269,10 @@ export default {
         )
         .catch((error) => console.log(error));
     },
+    showAllOrder(id){
+      this.showAll = !this.showAll
+      this.idTab = id
+    }
   },
 };
 </script>
