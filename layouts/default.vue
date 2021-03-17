@@ -64,6 +64,14 @@
               >
             </li>
             <li class="nav-item">
+              <nuxt-link
+                class="nav-link active"
+                aria-current="page"
+                to="/coupon"
+                >Coupon</nuxt-link
+              >
+            </li>
+            <li class="nav-item">
               <button
                 class="nav-link active"
                 aria-current="page"

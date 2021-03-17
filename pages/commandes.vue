@@ -27,8 +27,7 @@
               <th class="table-dark titreCommande" scope="col">
                 <h3>{{ commande.id }}</h3>
                 <h5>
-                  {{ commande.order_key }} | {{ test(commande.date_created) }}
-                  {{ date }}
+                  {{ commande.order_key }} | {{ commande.date_created.replace("T", " ") }}
                 </h5>
                 <h5>{{ commande.total }} €</h5>
               </th>
@@ -161,7 +160,6 @@ export default {
       },
       showAll: false,
       idTab:null,
-      date: "",
       ready: 0,
       commandes: [],
       commandesLire: [],
@@ -181,10 +179,6 @@ export default {
     }, 40000);
   },
   methods: {
-    test(date) {
-      date = date.replace("T", " ");
-      this.date = date;
-    },
     async getCommandes() {
       await axios
         .get(window.addresse + "wp-json/wc/v3/orders", {
@@ -246,7 +240,6 @@ export default {
       this.commandes = this.commandesLire;
       this.listeCommande = this.listeCommandeLire;
       this.ready = 1;
-      this.test(date);
     },
     editOrders(idCommande) {
       const url = window.addresse + "/wp-json/wc/v3/orders/" + idCommande;
