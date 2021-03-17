@@ -520,7 +520,7 @@ export default {
 </script>
 
 
-<style scoped>
+<style >
 .typeProduct {
   margin-bottom: 5%;
 }
@@ -534,7 +534,7 @@ export default {
 .general {
   margin-top: 5%;
 }
-.card {
+.overflow-hidden {
   min-width: 100%;
 }
 .btnGeneral {
