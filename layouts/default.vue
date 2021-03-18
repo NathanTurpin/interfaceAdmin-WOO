@@ -51,7 +51,7 @@
                 split-to="/commandes"
                 text="Commandes"
               >
-                <b-dropdown-item to="/ordersDone">Commande terminée</b-dropdown-item>
+                <b-dropdown-item to="/allCommandes">Commande terminée</b-dropdown-item>
 
               </b-dropdown>
             </li>
