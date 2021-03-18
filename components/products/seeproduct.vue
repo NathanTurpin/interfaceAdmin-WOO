@@ -141,9 +141,16 @@ export default {
   },
   computed: {
     filteredList() {
-      return this.products.filter((product) => {
+      try {
+ return this.products.filter((product) => {
         return product.name.toLowerCase().includes(this.search.toLowerCase());
       });
+      }
+      catch(error){
+        this.getProduct();
+        return 0
+      }
+     
     },
   },
   methods: {
