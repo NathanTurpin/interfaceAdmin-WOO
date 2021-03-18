@@ -1,6 +1,6 @@
 <template>
   <div class="main">
-    <div>
+    <!-- <div>
       <div
         v-if="ready === 0"
         id="chargement"
@@ -14,9 +14,9 @@
           font-weight: bold;
           font-size: 14px;
         "
-      >
+      > 
         <img src="../static/loader.gif" /> Chargement ...
-      </div>
+      </div> -->
       <div v-for="(commande, idCommande) in commandes" :key="idCommande">
         <table
           class="table table-bordered"
@@ -33,28 +33,27 @@
               </th>
             </tr>
           </thead>
+          <div>
           <tbody
           v-show="showAll && idTab === idCommande"
             class="tdBody"
             v-for="(item, id) in commande.line_items"
             :key="id"
           >
-            <div v-if="item.variation_id != 0">
-              <tr class="table-info" v-if="id === 0">
-                <td>ID_variant</td>
-                <td>Nom_variant</td>
-                <td>Quantité</td>
-                <td>Prix unitaire</td>
-                <td>Prix total HT</td>
-                <td>Image produit</td>
+              <tr class="table-info" v-if="item.variation_id != 0" >
+                <td v-if="id === 0">ID_variant</td>
+                <td v-if="id === 0">Nom_variant</td>
+                <td v-if="id === 0">Quantité</td>
+                <td v-if="id === 0">Prix unitaire</td>
+                <td v-if="id === 0">Prix total HT</td>
               </tr>
-              <tr>
+              <tr v-if="item.variation_id != 0">
                 <td>{{ item.variation_id }}</td>
                 <td class="tdNameVar">{{ item.name }}</td>
                 <td>{{ item.quantity }}</td>
                 <td>{{ item.price }} €</td>
                 <td>{{ item.subtotal }} €</td>
-                <td
+                <!-- <td
                   class="tdImg"
                   v-if="listeCommande[idCommande][id] !== undefined"
                 >
@@ -64,25 +63,22 @@
                     :src="listeCommande[idCommande][id].image.src"
                     alt="Card image cap"
                   />
-                </td>
+                </td> -->
               </tr>
-            </div>
-            <div v-if="item.variation_id === 0">
-              <tr class="table-info" v-if="id === 0">
-                <td>ID_produit</td>
-                <td>Nom</td>
-                <td>Quantité</td>
-                <td>Prix unitaire</td>
-                <td>Prix total HT</td>
-                <td>Image produit</td>
+              <tr class="table-info" v-if="item.variation_id === 0">
+                <td v-if="id === 0">ID_produit</td>
+                <td v-if="id === 0">Nom</td>
+                <td v-if="id === 0">Quantité</td>
+                <td v-if="id === 0">Prix unitaire</td>
+                <td v-if="id === 0">Prix total HT</td>
               </tr>
-              <tr>
+              <tr v-if="item.variation_id === 0">
                 <td>{{ item.product_id }}</td>
                 <td>{{ item.name }}</td>
                 <td>{{ item.quantity }}</td>
                 <td>{{ item.price }} €</td>
                 <td>{{ item.subtotal }} €</td>
-                <td
+                <!-- <td
                   class="tdImg"
                   v-if="listeCommande[idCommande][id] !== undefined"
                 >
@@ -92,10 +88,10 @@
                     :src="listeCommande[idCommande][id].images[0].src"
                     alt="Card image cap"
                   />
-                </td>
+                </td> -->
               </tr>
-            </div>
           </tbody>
+          </div>
           <tfoot v-show="showAll && idTab === idCommande">
             <tr>
               <td class="tdFooter">
@@ -141,14 +137,17 @@
           </tfoot>
         </table>
       </div>
-    </div>
+    </div> 
+    <!-- <div v-for="command in commandes">
+      {{command}}
+    </div> -->
   </div>
 </template>
 
 <script>
 import axios from "axios";
 import commandeIDAdmin from "@/components/commandeIDAdmin";
-
+const apiUrl = process.env.API_URL;
 export default {
   components: {
     commandeIDAdmin,
@@ -159,7 +158,7 @@ export default {
         statusEdit: "",
       },
       showAll: false,
-      idTab:null,
+      idTab: null,
       ready: 0,
       commandes: [],
       commandesLire: [],
@@ -174,21 +173,39 @@ export default {
   mounted() {
     var self = this;
     self.getCommandes();
-    setInterval(function () {
+    /*  setInterval(function () {
       self.getCommandes();
-    }, 40000);
+    }, 40000); */
   },
   methods: {
     async getCommandes() {
+      
+      /*  const promises = [];
+      // await axios.get(`${process.env.baseUrl}wp-json...`,);
+
+      this.commandesLire.forEach((order, index) => {
+        order.products.forEach((product, index) => {
+          if(product.isVariant) {
+              promises.push(axios.get(xxx))
+          } else {
+            promises.push(axios.get(xxx))
+          }
+        })
+      })
+
+      Promise.all(promises).then(fullProducts => {
+        
+      }); */
+
       await axios
-        .get(window.addresse + "wp-json/wc/v3/orders", {
+        .get(apiUrl + "wp-json/wc/v3/orders", {
           headers: {
             Authorization: "Bearer " + this.token,
           },
         })
         .then((response) => (this.commandesLire = response.data))
         .catch((error) => console.log(error));
-      if (this.commandesLire.length > this.lastCommandes.length) {
+      /* if (this.commandesLire.length > this.lastCommandes.length) {
         this.ready = 0;
         for (let i = 0; i < this.commandesLire.length; i++) {
           // pour chaque commande on crée un tableau des produits commandés
@@ -198,20 +215,6 @@ export default {
             if (
               this.commandesLire[i].line_items[j].product_id !== "undefined"
             ) {
-              await axios
-                .get(
-                  window.addresse +
-                    "/wp-json/wc/v3/products/" +
-                    this.commandesLire[i].line_items[j].product_id,
-                  {
-                    headers: {
-                      Authorization: "Bearer " + this.token,
-                    },
-                  }
-                )
-                .then((response) => (produit[j] = response.data)) // on met le produit trouvé dans le tableau
-                .catch((error) => console.log("toto"));
-
               if (this.commandesLire[i].line_items[j].variation_id) {
                 // si le produit est un variant on va chercher la variation du produit
                 await axios
@@ -229,6 +232,20 @@ export default {
                   )
                   .then((response) => (produit[j] = response.data)) // on met le produit variant trouvé dans le tableau
                   .catch((error) => console.log(error));
+              } else {
+                await axios
+                  .get(
+                    window.addresse +
+                      "/wp-json/wc/v3/products/" +
+                      this.commandesLire[i].line_items[j].product_id,
+                    {
+                      headers: {
+                        Authorization: "Bearer " + this.token,
+                      },
+                    }
+                  )
+                  .then((response) => (produit[j] = response.data)) // on met le produit trouvé dans le tableau
+                  .catch((error) => console.log("toto"));
               }
             }
           }
@@ -236,7 +253,7 @@ export default {
           this.listeCommandeLire[i] = produit; // le tableau des produits de la commande est placé dans le tableau des commandes
         }
         this.lastCommandes = this.commandesLire;
-      }
+      } */
       this.commandes = this.commandesLire;
       this.listeCommande = this.listeCommandeLire;
       this.ready = 1;
@@ -262,10 +279,10 @@ export default {
         )
         .catch((error) => console.log(error));
     },
-    showAllOrder(id){
-      this.showAll = !this.showAll
-      this.idTab = id
-    }
+    showAllOrder(id) {
+      this.showAll = !this.showAll;
+      this.idTab = id;
+    },
   },
 };
 </script>
@@ -276,6 +293,9 @@ table {
   margin: auto;
   margin-bottom: 2%;
 }
+thead,tfoot {
+  width: 100%
+}
 .titreCommande {
   display: flex;
   flex-wrap: wrap;
@@ -284,11 +304,8 @@ table {
 .titreCommande h5 {
   padding-top: 0.5%;
 }
-.tdImg {
-  width: 13%;
-}
 .tdBody td {
-  width: 15%;
+  width: 23%;
 }
 .tdFooter {
   display: flex;

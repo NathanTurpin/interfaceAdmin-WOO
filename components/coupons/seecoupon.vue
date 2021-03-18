@@ -56,6 +56,7 @@
 <script>
 import axios from "axios";
 import editCoupon from "@/components/coupons/editCoupon";
+const baseURL = "google.com";
 export default {
   components: {
     editCoupon,
@@ -74,6 +75,7 @@ export default {
   },
   mounted() {
     this.getCoupons();
+alert(process.env.API_URL)    
   },
   computed: {
     filteredList() {

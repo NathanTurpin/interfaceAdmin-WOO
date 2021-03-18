@@ -73,7 +73,7 @@
                 <td>{{ item.quantity }}</td>
                 <td>{{ item.price }} €</td>
                 <td>{{ item.subtotal }} €</td>
-                <td
+                <!-- <td
                   class="tdImg"
                   v-if="listeCommande[idCommande][id] !== undefined"
                 >
@@ -83,7 +83,7 @@
                     :src="listeCommande[idCommande][id].image.src"
                     alt="Card image cap"
                   />
-                </td>
+                </td> -->
               </tr>
             </div>
             <div v-if="item.variation_id === 0">
@@ -101,7 +101,7 @@
                 <td>{{ item.quantity }}</td>
                 <td>{{ item.price }} €</td>
                 <td>{{ item.subtotal }} €</td>
-                <td
+                <!-- <td
                   class="tdImg"
                   v-if="listeCommande[idCommande][id] !== undefined"
                 >
@@ -110,7 +110,7 @@
                     v-if="listeCommande[idCommande][id].images !== undefined"
                     :src="listeCommande[idCommande][id].images[0].src"
                     alt="Card image cap"
-                  />
+                  /> -->
                 </td>
               </tr>
             </div>
@@ -252,60 +252,59 @@ export default {
         })
         .then((response) => (this.commandesLire = response.data))
         .catch((error) => console.log(error));
-      // console.log(this.commandesLire)
-      if (this.commandesLire.length > this.lastCommandes.length) {
-        this.ready = 0;
-        for (let i = 0; i < this.commandesLire.length; i++) {
-          // pour chaque commande on crée un tableau des produits commandés
-          var produit = [];
-          for (let j = 0; j < this.commandesLire[i].line_items.length; j++) {
-            // pour chaque ligne dans une commande on recupère les infos du produits commandé
-            if (
-              this.commandesLire[i].line_items[j].product_id !== "undefined"
-            ) {
-              await axios
-                .get(
-                  window.addresse +
-                    "/wp-json/wc/v3/products/" +
-                    this.commandesLire[i].line_items[j].product_id,
-                  {
-                    headers: {
-                      Authorization: "Bearer " + this.token,
-                    },
-                  }
-                )
-                .then((response) => (produit[j] = response.data)) // on met le produit trouvé dans le tableau
-                .catch((error) => console.log("toto"));
+      // // console.log(this.commandesLire)
+      // if (this.commandesLire.length > this.lastCommandes.length) {
+      //   this.ready = 0;
+      //   for (let i = 0; i < this.commandesLire.length; i++) {
+      //     // pour chaque commande on crée un tableau des produits commandés
+      //     var produit = [];
+      //     for (let j = 0; j < this.commandesLire[i].line_items.length; j++) {
+      //       // pour chaque ligne dans une commande on recupère les infos du produits commandé
+      //       if (
+      //         this.commandesLire[i].line_items[j].product_id !== "undefined"
+      //       ) {
+      //         await axios
+      //           .get(
+      //             window.addresse +
+      //               "/wp-json/wc/v3/products/" +
+      //               this.commandesLire[i].line_items[j].product_id,
+      //             {
+      //               headers: {
+      //                 Authorization: "Bearer " + this.token,
+      //               },
+      //             }
+      //           )
+      //           .then((response) => (produit[j] = response.data)) // on met le produit trouvé dans le tableau
+      //           .catch((error) => console.log("toto"));
 
-              if (this.commandesLire[i].line_items[j].variation_id) {
-                // si le produit est un variant on va chercher la variation du produit
-                await axios
-                  .get(
-                    window.addresse +
-                      "/wp-json/wc/v3/products/" +
-                      produit[j].id +
-                      "/variations/" +
-                      this.commandesLire[i].line_items[j].variation_id,
-                    {
-                      headers: {
-                        Authorization: "Bearer " + this.token,
-                      },
-                    }
-                  )
-                  .then((response) => (produit[j] = response.data)) // on met le produit variant trouvé dans le tableau
-                  .catch((error) => console.log(error));
-              }
-            }
-          }
+      //         if (this.commandesLire[i].line_items[j].variation_id) {
+      //           // si le produit est un variant on va chercher la variation du produit
+      //           await axios
+      //             .get(
+      //               window.addresse +
+      //                 "/wp-json/wc/v3/products/" +
+      //                 produit[j].id +
+      //                 "/variations/" +
+      //                 this.commandesLire[i].line_items[j].variation_id,
+      //               {
+      //                 headers: {
+      //                   Authorization: "Bearer " + this.token,
+      //                 },
+      //               }
+      //             )
+      //             .then((response) => (produit[j] = response.data)) // on met le produit variant trouvé dans le tableau
+      //             .catch((error) => console.log(error));
+      //         }
+      //       }
+      //     }
 
-          this.listeCommandeLire[i] = produit; // le tableau des produits de la commande est placé dans le tableau des commandes
-        }
-        this.lastCommandes = this.commandesLire;
-      }
+      //     this.listeCommandeLire[i] = produit; // le tableau des produits de la commande est placé dans le tableau des commandes
+      //   }
+      //   this.lastCommandes = this.commandesLire;
+      // }
       this.commandes = this.commandesLire;
       this.listeCommande = this.listeCommandeLire;
       this.ready = 1;
-      //   this.test(this.date);
     },
     editOrders(idCommande) {
       const url = window.addresse + "/wp-json/wc/v3/orders/" + idCommande;
