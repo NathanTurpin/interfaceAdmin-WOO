@@ -1,7 +1,7 @@
 <template>
   <div class="main">
     <div>
-      <div
+      <!-- <div
         v-if="ready === 0"
         id="chargement"
         style="
@@ -16,110 +16,107 @@
         "
       >
         <img src="../static/loader.gif" /> Chargement ...
-      </div>
+      </div> -->
 
-      <div class="search-wrapper">
-        <select class="form-control" @change="changeType($event)">
-          <option value="" selected disabled>Choisir le statut</option>
-          <option
-            v-for="option in options"
-            :value="option.statut"
-            :key="option.text"
-          >
-            {{ option.text }}
-          </option>
-        </select>
-        <p>
-          <span>Liste des commande statut : {{ choixOption }}</span>
-        </p>
-        <div v-show="choixOption === 'date'">
-          <label>Chercher par date :</label>
-          <input type="text" v-model="searchDate" placeholder="" />
-        </div>
+
+      <label>Choisir les commandes à afficher </label>
+      <select class="search-wrapper" @change="changeType($event)">
+          <option v-for="option in options" :value="option.statut" :key="option.text">{{ option.text }}</option>
+      </select>
+      <tr class="search-wrapper" v-if="choixOption==='date'">
+      <label>Choisir la date :</label>
+      <input type="text" v-model="searchDate" placeholder="" />
+      </tr>
+      <div class="search-wrapper" v-if="choixOption==='numero'">
+      <label>Choisir le numéro de commande :</label>
+      <input type="text" v-model="searchNumero" placeholder="" />
       </div>
-      <div v-for="(commande, idCommande) in filteredList" :key="idCommande">
-        <table class="table table-bordered">
+       <div v-for="(commande, idCommande) in filteredList" :key="idCommande">
+        <table
+          class="table table-bordered"
+        >
           <thead v-if="commande" @click="showAllOrder(idCommande)">
             <tr>
               <th class="table-dark titreCommande" scope="col">
                 <h3>{{ commande.id }}</h3>
                 <h5>
-                  {{ commande.order_key }} |
-                  {{ commande.date_created.replace("T", " ") }}
+                  {{ commande.order_key }} | {{commande.date_created.replace("T", " ") }}
                   <!-- {{ date }} -->
                 </h5>
                 <h5>{{ commande.total }} €</h5>
               </th>
             </tr>
           </thead>
+          <div>
           <tbody
-            v-show="showAll && idTab === idCommande"
+          v-show="showAll && idTab === idCommande"
             class="tdBody"
             v-for="(item, id) in commande.line_items"
             :key="id"
           >
-            <div v-if="item.variation_id != 0">
-              <tr class="table-info" v-if="id === 0">
-                <td>ID_variant</td>
-                <td>Nom_variant</td>
-                <td>Quantité</td>
-                <td>Prix unitaire</td>
-                <td>Prix total HT</td>
-                <td>Image produit</td>
+              <tr class="table-info"  v-if="item.variation_id != 0 " >
+                <td v-if="id === 0">ID_variant</td>
+                <td v-if="id === 0">Nom_variant</td>
+                <td v-if="id === 0">Quantité</td>
+                <td v-if="id === 0">Prix unitaire</td>
+                <td v-if="id === 0">Prix total HT</td>
+                <td v-if="id === 0">Image produit</td>
               </tr>
-              <tr>
+              <tr v-if="item.variation_id != 0 ">
                 <td>{{ item.variation_id }}</td>
                 <td class="tdNameVar">{{ item.name }}</td>
                 <td>{{ item.quantity }}</td>
                 <td>{{ item.price }} €</td>
                 <td>{{ item.subtotal }} €</td>
-                <!-- <td
-                  class="tdImg"
-                  v-if="listeCommande[idCommande][id] !== undefined"
-                >
-                  <img
-                    class="img-fluid"
-                    v-if="listeCommande[idCommande][id].image !== undefined"
-                    :src="listeCommande[idCommande][id].image.src"
-                    alt="Card image cap"
-                  />
-                </td> -->
+                <div v-if="listeCommande[idCommande]!=undefined">
+                    <td
+                      class="tdImg"
+                      v-if="listeCommande[idCommande][id] !== undefined"
+                    >
+                          <img
+                            class="img-fluid"
+                            v-if="listeCommande[idCommande][id].image !== undefined"
+                            :src="listeCommande[idCommande][id].image.src"
+                            alt="Card image cap"
+                          />
+                    </td>
+                </div>
+                <div v-else > <img src="../static/loader.gif" />   </div>  
               </tr>
-            </div>
-            <div v-if="item.variation_id === 0">
-              <tr class="table-info" v-if="id === 0">
-                <td>ID_produit</td>
-                <td>Nom</td>
-                <td>Quantité</td>
-                <td>Prix unitaire</td>
-                <td>Prix total HT</td>
-                <td>Image produit</td>
+              <tr class="table-info" v-if="item.variation_id === 0 " >
+                <td v-if="id === 0">ID_produit</td>
+                <td v-if="id === 0">Nom</td>
+                <td v-if="id === 0">Quantité</td>
+                <td v-if="id === 0">Prix unitaire</td>
+                <td v-if="id === 0">Prix total HT</td>
+                <td v-if="id === 0">Image produit</td>
               </tr>
-              <tr>
+              <tr v-if="item.variation_id === 0 ">
                 <td>{{ item.product_id }}</td>
                 <td>{{ item.name }}</td>
                 <td>{{ item.quantity }}</td>
                 <td>{{ item.price }} €</td>
                 <td>{{ item.subtotal }} €</td>
-                <!-- <td
+                <div v-if="listeCommande[idCommande]!=undefined">
+                <td
                   class="tdImg"
                   v-if="listeCommande[idCommande][id] !== undefined"
                 >
-                  <img
+                   <img
                     class="img-fluid"
                     v-if="listeCommande[idCommande][id].images !== undefined"
                     :src="listeCommande[idCommande][id].images[0].src"
                     alt="Card image cap"
-                  /> -->
+                  />
                 </td>
+                </div>
+                <div v-else > <img src="../static/loader.gif" />   </div>  
+
               </tr>
-            </div>
           </tbody>
+          </div>
           <tfoot v-show="showAll && idTab === idCommande">
-            <div v-if="commande.coupon_lines.length !== 0">
-              {{ commande.coupon_lines[0].code }}
-              {{ commande.coupon_lines[0].discount }}€
-            </div>
+            <div v-if="commande.coupon_lines.length!==0"> {{commande.coupon_lines[0].code}} {{commande.coupon_lines[0].discount}}€</div>
             <tr>
               <td class="tdFooter">
                 <h4>
@@ -128,7 +125,7 @@
                 </h4>
 
                 <div>
-                  <h6>Info client :</h6>
+                <h6>Info client :</h6>
 
                   <p class="infoClient1">
                     {{ commande.billing.address_1 }}
@@ -182,23 +179,24 @@ export default {
         statusEdit: "",
       },
       showAll: false,
-      idTab: null,
-      choixCours: 0,
-      choixSoldee: 0,
-      choixOption: "",
-      options: [
-        { text: "Attente de paiement", statut: "pending", value: "fixed_cart" },
-        { text: "Toutes", statut: "all", value: "fixed_cart" },
-        { text: "Date", statut: "date", value: "fixed_cart" },
-        { text: "En cours", statut: "pending", value: "fixed_cart" },
-        { text: "En attente", statut: "on-hold", value: "fixed_cart" },
-        { text: "Terminée", statut: "completed", value: "fixed_cart" },
-        { text: "Annulée", statut: "cancelled", value: "fixed_cart" },
-        { text: "Remboursée", statut: "refunded", value: "fixed_cart" },
-        { text: "Echouée", statut: "failled", value: "fixed_cart" },
+      idTab:null,
+      choixOption:"",
+       options: [
+        { text: "Toutes", statut: "all" },
+        { text: "Attente de paiement", statut: "pending" },
+        { text: "Date", statut: "date" },
+        { text: "Numéro de commande", statut: "numero" },
+        { text: "En cours",statut: "pending" },
+        { text: "En attente",statut: "on-hold" },
+        { text: "Terminée",statut: "completed" },
+        { text: "Annulée",statut: "cancelled" },
+        { text: "Remboursée", statut: "refunded" },
+        { text: "Echouée", statut: "failled" },
+
       ],
       searchDate: "",
-      searchStatus: "",
+      searchStatus:"",
+      searchNumero:"",
       date: "",
       ready: 0,
       commandes: [],
@@ -212,22 +210,25 @@ export default {
   },
   computed: {
     filteredList() {
-      try {
-        return this.commandes.filter((commande) => {
-          if (this.choixOption === "date") {
-            return commande.date_created
-              .toLowerCase()
-              .includes(this.searchDate.toLowerCase());
+       try {
+        return this.commandes.filter(commande => {
+          
+          if (this.choixOption=== "date") {
+            return commande.date_created.toLowerCase().includes(this.searchDate.toLowerCase());
           }
-          if (this.choixOption === "all") {
+          if (this.choixOption=== "numero") {
+            return commande.order_key.toLowerCase().includes(this.searchNumero.toLowerCase());
+          }
+          if (this.choixOption=== "all") {
             return this.commandes;
-          } else
-            return commande.status.toLowerCase().includes(this.choixOption);
-        });
-      } catch (error) {
-        this.getCommandes();
-        // console.log(error)
-        return 0;
+          }
+          else return commande.status.toLowerCase().includes(this.choixOption);
+      });
+      }
+      catch(error){
+            this.getCommandes();
+            // console.log(error)
+            return 0;
       }
     },
   },
@@ -239,8 +240,8 @@ export default {
     }, 40000);
   },
   methods: {
-    changeType(event) {
-      this.choixOption = event.target.value;
+    changeType (event) {
+      this.choixOption = event.target.value
       // this.selectedCountry = event.target.options[event.target.options.selectedIndex].text
     },
     async getCommandes() {
@@ -252,59 +253,62 @@ export default {
         })
         .then((response) => (this.commandesLire = response.data))
         .catch((error) => console.log(error));
-      // // console.log(this.commandesLire)
-      // if (this.commandesLire.length > this.lastCommandes.length) {
-      //   this.ready = 0;
-      //   for (let i = 0; i < this.commandesLire.length; i++) {
-      //     // pour chaque commande on crée un tableau des produits commandés
-      //     var produit = [];
-      //     for (let j = 0; j < this.commandesLire[i].line_items.length; j++) {
-      //       // pour chaque ligne dans une commande on recupère les infos du produits commandé
-      //       if (
-      //         this.commandesLire[i].line_items[j].product_id !== "undefined"
-      //       ) {
-      //         await axios
-      //           .get(
-      //             window.addresse +
-      //               "/wp-json/wc/v3/products/" +
-      //               this.commandesLire[i].line_items[j].product_id,
-      //             {
-      //               headers: {
-      //                 Authorization: "Bearer " + this.token,
-      //               },
-      //             }
-      //           )
-      //           .then((response) => (produit[j] = response.data)) // on met le produit trouvé dans le tableau
-      //           .catch((error) => console.log("toto"));
 
-      //         if (this.commandesLire[i].line_items[j].variation_id) {
-      //           // si le produit est un variant on va chercher la variation du produit
-      //           await axios
-      //             .get(
-      //               window.addresse +
-      //                 "/wp-json/wc/v3/products/" +
-      //                 produit[j].id +
-      //                 "/variations/" +
-      //                 this.commandesLire[i].line_items[j].variation_id,
-      //               {
-      //                 headers: {
-      //                   Authorization: "Bearer " + this.token,
-      //                 },
-      //               }
-      //             )
-      //             .then((response) => (produit[j] = response.data)) // on met le produit variant trouvé dans le tableau
-      //             .catch((error) => console.log(error));
-      //         }
-      //       }
-      //     }
+              this.commandes = this.commandesLire;
 
-      //     this.listeCommandeLire[i] = produit; // le tableau des produits de la commande est placé dans le tableau des commandes
-      //   }
-      //   this.lastCommandes = this.commandesLire;
-      // }
+        // console.log(this.commandesLire)
+      if (this.commandesLire.length > this.lastCommandes.length) {
+        this.ready = 0;
+        for (let i = 0; i < this.commandesLire.length; i++) {
+          // pour chaque commande on crée un tableau des produits commandés
+          var produit = [];
+          for (let j = 0; j < this.commandesLire[i].line_items.length; j++) {
+            // pour chaque ligne dans une commande on recupère les infos du produits commandé
+            if (this.commandesLire[i].line_items[j].product_id !== "undefined") {
+              await axios
+                .get(
+                  window.addresse +
+                    "/wp-json/wc/v3/products/" +
+                    this.commandesLire[i].line_items[j].product_id,
+                  {
+                    headers: {
+                      Authorization: "Bearer " + this.token,
+                    },
+                  }
+                )
+                .then((response) => (produit[j] = response.data)) // on met le produit trouvé dans le tableau
+                .catch((error) => console.log("toto"));
+
+              if (this.commandesLire[i].line_items[j].variation_id) {
+                // si le produit est un variant on va chercher la variation du produit
+                await axios
+                  .get(
+                    window.addresse +
+                      "/wp-json/wc/v3/products/" +
+                      produit[j].id +
+                      "/variations/" +
+                      this.commandesLire[i].line_items[j].variation_id,
+                    {
+                      headers: {
+                        Authorization: "Bearer " + this.token,
+                      },
+                    }
+                  )
+                  .then((response) => (produit[j] = response.data)) // on met le produit variant trouvé dans le tableau
+                  .catch((error) => console.log(error));
+              }
+            }
+          }
+
+          this.listeCommandeLire[i] = produit; // le tableau des produits de la commande est placé dans le tableau des commandes
+          this.listeCommande = this.listeCommandeLire;
+        }
+        this.lastCommandes = this.commandesLire;
+      }
       this.commandes = this.commandesLire;
       this.listeCommande = this.listeCommandeLire;
       this.ready = 1;
+   //   this.test(this.date);
     },
     editOrders(idCommande) {
       const url = window.addresse + "/wp-json/wc/v3/orders/" + idCommande;
@@ -327,19 +331,24 @@ export default {
         )
         .catch((error) => console.log(error));
     },
-    showAllOrder(id) {
-      this.showAll = !this.showAll;
-      this.idTab = id;
-    },
+    showAllOrder(id){
+      this.showAll = !this.showAll
+      this.idTab = id
+    }
   },
 };
 </script>
 
 <style scoped>
+
 table {
   width: 70%;
   margin: auto;
   margin-bottom: 2%;
+}
+thead,
+tfoot {
+  width: 100%;
 }
 .titreCommande {
   display: flex;
@@ -349,11 +358,8 @@ table {
 .titreCommande h5 {
   padding-top: 0.5%;
 }
-.tdImg {
-  width: 13%;
-}
 .tdBody td {
-  width: 15%;
+  width: 23%;
 }
 .tdFooter {
   display: flex;

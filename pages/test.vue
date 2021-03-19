@@ -1,149 +1,169 @@
 <template>
   <div class="main">
-    <!-- <p v-show="this.notif >= 0">{{ notif }}</p> -->
-    <button @click="getProductImg">cc</button>
-    {{ idProdImg }} <br />
-    <br />
-    <div class="table-responsive">
-      <table
-        class="table"
-        v-for="(commande, idCommande) in commandes"
-        :key="idCommande"
+    <div>
+      <!-- <div
+        v-if="ready === 0"
+        id="chargement"
+        style="
+          width: 150px;
+          height: 50px;
+          position: absolute;
+          top: 45%;
+          left: 45%;
+          color: red;
+          font-weight: bold;
+          font-size: 14px;
+        "
       >
-        <thead>
-          <tr>
-            <th>
-              {{ commande.id }} 
-            </th>
-            <th>
-                {{ commande.order_key }}
-            </th>
-            <th>
-              {{ commande.date_created }}
+        <img src="../static/loader.gif" /> Chargement ...
+      </div> -->
 
-            </th>
-          </tr>
-        </thead>
-        <tbody v-for="(item, id) in commande.line_items" :key="id">
-          <tr>
-            <td></td>
-            <td>
-              <p v-if="item.variation_id">ID variable</p>
-              <p v-else>ID produit</p>
-            </td>
-            <td>Nom</td>
-            <td>Quantité</td>
-          </tr>
-          <tr>
-            <td>produits</td>
-            <td>
-              <p v-if="item.variation_id">{{ item.variation_id }}</p>
-              <p v-else>{{ item.product_id }}</p>
-            </td>
 
-            <td>{{ item.name }}</td>
-            <td>{{ item.quantity }}</td>
-
-            <div class="tdImg" v-if="item.variation_id">
-              <!-- <div> -->
-              <!-- <td v-if="ready2 === 1"> -->
-              <!-- {{ item.variation_id }}  -->
-              <!-- {{ listeCommandeVar[idCommande][id].variations[id] }} -->
-              <!-- {{ listeCommandeVar[idCommande][id].variations }} -->
-              <!-- <div
-                      v-for="(item,idee) in listeCommandeVar[idCommande][id]
-                        .variations" :key="idee"
+      <label>Choisir les commandes à afficher </label>
+      <select class="search-wrapper" @change="changeType($event)">
+          <option v-for="option in options" :value="option.statut" :key="option.text">{{ option.text }}</option>
+      </select>
+      <tr class="search-wrapper" v-if="choixOption==='date'">
+      <label>Choisir la date :</label>
+      <input type="text" v-model="searchDate" placeholder="" />
+      </tr>
+      <div class="search-wrapper" v-if="choixOption==='numero'">
+      <label>Choisir le numéro de commande :</label>
+      <input type="text" v-model="searchNumero" placeholder="" />
+      </div>
+       <div v-for="(commande, idCommande) in filteredList" :key="idCommande">
+        <table
+          class="table table-bordered"
+        >
+          <thead v-if="commande" @click="showAllOrder(idCommande)">
+            <tr>
+              <th class="table-dark titreCommande" scope="col">
+                <h3>{{ commande.id }}</h3>
+                <h5>
+                  {{ commande.order_key }} | {{commande.date_created.replace("T", " ") }}
+                  <!-- {{ date }} -->
+                </h5>
+                <h5>{{ commande.total }} €</h5>
+              </th>
+            </tr>
+          </thead>
+          <tbody
+          v-show="showAll && idTab === idCommande"
+            class="tdBody"
+            v-for="(item, id) in commande.line_items"
+            :key="id"
+          >
+            <div v-if="item.variation_id != 0 ">
+              <tr class="table-info" v-if="id === 0">
+                <td>ID_variant</td>
+                <td>Nom_variant</td>
+                <td>Quantité</td>
+                <td>Prix unitaire</td>
+                <td>Prix total HT</td>
+                <td>Image produit</td>
+              </tr>
+              <tr>
+                <td>{{ item.variation_id }}</td>
+                <td class="tdNameVar">{{ item.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price }} €</td>
+                <td>{{ item.subtotal }} €</td>
+                <div v-if="listeCommande[idCommande]!=undefined">
+                    <td
+                      class="tdImg"
+                      v-if="listeCommande[idCommande][id] !== undefined"
                     >
-                     {{idee}} {{ item[1] }}
-
-                    </div> -->
-
-              <!-- <img
-                    class="img-fluid"
-                    v-if="listeCommande[idCommande][id].variations[id].image !== undefined"
-                    :src="listeCommande[idCommande][id].variations[id].image.src"
-                    alt="Card image cap"
-                  /> -->
-              <!-- </td>
-              </div> -->
-              <!-- <div v-for="variant in productsVariants">
-                <div v-for="vari in variant">
-                  <div v-if="item.variation_id === vari.id">
-                    <td>
-                      <img
-                        class="img-fluid"
-                        v-if="vari.image !== undefined"
-                        :src="vari.image.src"
-                        alt="Card image cap"
-                      />
+                          <img
+                            class="img-fluid"
+                            v-if="listeCommande[idCommande][id].image !== undefined"
+                            :src="listeCommande[idCommande][id].image.src"
+                            alt="Card image cap"
+                          />
                     </td>
-                  </div>
                 </div>
-              </div> -->
+                <div v-else > <img src="../static/loader.gif" />   </div>  
+              </tr>
             </div>
-            <div class="tdImg" v-else>
-              <!-- <td>{{idCommande}}{{listeCommande[idCommande][id].images[0].src}}</td> -->
-              <td v-if="ready === 1">
-                <img
-                  class="img-fluid"
-                  v-if="listeCommande[idCommande][id].images[0] !== undefined"
-                  :src="listeCommande[idCommande][id].images[0].src"
-                  alt="Card image cap"
-                />
-              </td>
+            <div v-if="item.variation_id === 0 ">
+              <tr class="table-info" v-if="id === 0">
+                <td>ID_produit</td>
+                <td>Nom</td>
+                <td>Quantité</td>
+                <td>Prix unitaire</td>
+                <td>Prix total HT</td>
+                <td>Image produit</td>
+              </tr>
+              <tr>
+                <td>{{ item.product_id }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price }} €</td>
+                <td>{{ item.subtotal }} €</td>
+                <div v-if="listeCommande[idCommande]!=undefined">
+                <td
+                  class="tdImg"
+                  v-if="listeCommande[idCommande][id] !== undefined"
+                >
+                   <img
+                    class="img-fluid"
+                    v-if="listeCommande[idCommande][id].images !== undefined"
+                    :src="listeCommande[idCommande][id].images[0].src"
+                    alt="Card image cap"
+                  />
+                </td>
+                </div>
+                <div v-else > <img src="../static/loader.gif" />   </div>  
 
-              <!-- <div v-for="(product, id) in products" :key="id"> -->
-              <!-- <div v-if="item.product_id === product.id"> -->
-              <!-- <td>
-                    <img
-                      class="img-fluid"
-                      v-if="listeCommande[idCommande][id].images[0] !== undefined"
-                      :src="listeCommande[idCommande][id].images[0].src"
-                      alt="Card image cap"
-                    />
-                    </td> -->
-              <!-- </div> -->
-              <!-- </div> -->
+              </tr>
             </div>
-          </tr>
-        </tbody>
-        <tfoot>
-          <tr>
-            <td>
-              {{ commande.billing.first_name }}
-              {{ commande.billing.last_name }}
-            </td>
-            <td>
-              {{ commande.billing.address_1 }}
-              {{ commande.billing.address_2 }}
-              {{ commande.billing.city }}
-              {{ commande.billing.postcode }}
-              {{ commande.billing.country }}
-            </td>
-            <td>
-              {{ commande.billing.email }}
-              {{ commande.billing.phone }}
-            </td>
-          </tr>
-          <tr>
-            <select v-model="form.statusEdit">
-              <option disabled value="">{{ commande.status }}</option>
-              <option>completed</option>
-            </select>
-            <br />
-            <span>Selected: {{ form.statusEdit }}</span>
-            <br />
-            {{
-              commande.total
-            }}
-            <button @click="editOrders(commande.id)">valider</button>
-          </tr>
-        </tfoot>
-      </table>
+          </tbody>
+          <tfoot v-show="showAll && idTab === idCommande">
+            <div v-if="commande.coupon_lines.length!==0"> {{commande.coupon_lines[0].code}} {{commande.coupon_lines[0].discount}}€</div>
+            <tr>
+              <td class="tdFooter">
+                <h4>
+                  {{ commande.billing.first_name }}
+                  {{ commande.billing.last_name }}
+                </h4>
+
+                <div>
+                <h6>Info client :</h6>
+
+                  <p class="infoClient1">
+                    {{ commande.billing.address_1 }}
+                    {{ commande.billing.address_2 }}
+                    {{ commande.billing.city }}
+                    {{ commande.billing.postcode }}
+                    {{ commande.billing.country }}
+                  </p>
+                  <p class="infoClient1">
+                    {{ commande.billing.email }}
+                  </p>
+                  <p>
+                    {{ commande.billing.phone }}
+                  </p>
+                </div>
+              </td>
+            </tr>
+
+            <button
+              type="button"
+              class="btn btn-danger trFooterSelectBtn"
+              @click="editOrders(commande.id)"
+            >
+              Valider
+            </button>
+            <tr class="trFooterSelect">
+              <select v-model="form.statusEdit">
+                <option disabled value="">{{ commande.status }}</option>
+                <option>completed</option>
+              </select>
+              <span>Selected: {{ form.statusEdit }}</span>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
     </div>
-    <!--  -->
-    <!-- 
-      fin -->
   </div>
 </template>
 
@@ -157,33 +177,75 @@ export default {
   },
   data() {
     return {
-      // notif: -1,
-      ready: 0,
-      ready2: 0,
       form: {
         statusEdit: "",
       },
+      showAll: false,
+      idTab:null,
+      choixOption:"",
+       options: [
+        { text: "Toutes", statut: "all" },
+        { text: "Attente de paiement", statut: "pending" },
+        { text: "Date", statut: "date" },
+        { text: "Numéro de commande", statut: "numero" },
+        { text: "En cours",statut: "pending" },
+        { text: "En attente",statut: "on-hold" },
+        { text: "Terminée",statut: "completed" },
+        { text: "Annulée",statut: "cancelled" },
+        { text: "Remboursée", statut: "refunded" },
+        { text: "Echouée", statut: "failled" },
+
+      ],
+      searchDate: "",
+      searchStatus:"",
+      searchNumero:"",
+      date: "",
+      ready: 0,
       commandes: [],
-      idCommande: 0,
+      commandesLire: [],
       lastCommandes: [],
-      listeCommandeVar: [],
-      idProdImg: [],
-      idProdVarImg: [],
-      products: [],
-      productsVariants: [],
       token: localStorage.getItem("token"),
       listeCommande: [],
+      listeCommandeLire: [],
+      adresse: window.addresse + "/assets/loader.gif",
     };
+  },
+  computed: {
+    filteredList() {
+       try {
+        return this.commandes.filter(commande => {
+          
+          if (this.choixOption=== "date") {
+            return commande.date_created.toLowerCase().includes(this.searchDate.toLowerCase());
+          }
+          if (this.choixOption=== "numero") {
+            return commande.order_key.toLowerCase().includes(this.searchNumero.toLowerCase());
+          }
+          if (this.choixOption=== "all") {
+            return this.commandes;
+          }
+          else return commande.status.toLowerCase().includes(this.choixOption);
+      });
+      }
+      catch(error){
+            this.getCommandes();
+            // console.log(error)
+            return 0;
+      }
+    },
   },
   mounted() {
     var self = this;
-    // this.getProductImg();
-
+    self.getCommandes();
     setInterval(function () {
       self.getCommandes();
-    }, 10000);
+    }, 40000);
   },
   methods: {
+    changeType (event) {
+      this.choixOption = event.target.value
+      // this.selectedCountry = event.target.options[event.target.options.selectedIndex].text
+    },
     async getCommandes() {
       await axios
         .get(window.addresse + "wp-json/wc/v3/orders", {
@@ -191,83 +253,64 @@ export default {
             Authorization: "Bearer " + this.token,
           },
         })
-        .then(
-          (response) => (this.commandes = response.data)
-          // console.log(this.commandes),
-          // console.log(this.commandes.length)
-        )
+        .then((response) => (this.commandesLire = response.data))
         .catch((error) => console.log(error));
 
-      if (this.commandes.length > this.lastCommandes.length) {
-        this.getProductImg();
-      }
-      this.lastCommandes = this.commandes;
-    },
+              this.commandes = this.commandesLire;
 
-    async getProductImg() {
-      this.listeCommande = [];
-      this.listeCommandeVar = [];
-      console.log(this.commandes);
+        // console.log(this.commandesLire)
+      if (this.commandesLire.length > this.lastCommandes.length) {
+        this.ready = 0;
+        for (let i = 0; i < this.commandesLire.length; i++) {
+          // pour chaque commande on crée un tableau des produits commandés
+          var produit = [];
+          for (let j = 0; j < this.commandesLire[i].line_items.length; j++) {
+            // pour chaque ligne dans une commande on recupère les infos du produits commandé
+            if (this.commandesLire[i].line_items[j].product_id !== "undefined") {
+              await axios
+                .get(
+                  window.addresse +
+                    "/wp-json/wc/v3/products/" +
+                    this.commandesLire[i].line_items[j].product_id,
+                  {
+                    headers: {
+                      Authorization: "Bearer " + this.token,
+                    },
+                  }
+                )
+                .then((response) => (produit[j] = response.data)) // on met le produit trouvé dans le tableau
+                .catch((error) => console.log("toto"));
 
-      for (let i = 0; i < this.commandes.length; i++) {
-        var prod = [];
-        for (let j = 0; j < this.commandes[i].line_items.length; j++) {
-          prod[j] = { produit: this.commandes[i].line_items[j].product_id }; // renvoie toutes les produits de la commande
-        }
-        this.listeCommande[i] = prod;
-        this.listeCommandeVar[i] = prod;
-      }
-      console.log(this.listeCommande);
-      for (let k = 0; k < this.listeCommande.length; k++) {
-        for (let l = 0; l < this.listeCommande[k].length; l++) {
-          await axios
-            .get(
-              window.addresse +
-                "/wp-json/wc/v3/products/" +
-                this.listeCommande[k][l].produit,
-              {
-                headers: {
-                  Authorization: "Bearer " + this.token,
-                },
+              if (this.commandesLire[i].line_items[j].variation_id) {
+                // si le produit est un variant on va chercher la variation du produit
+                await axios
+                  .get(
+                    window.addresse +
+                      "/wp-json/wc/v3/products/" +
+                      produit[j].id +
+                      "/variations/" +
+                      this.commandesLire[i].line_items[j].variation_id,
+                    {
+                      headers: {
+                        Authorization: "Bearer " + this.token,
+                      },
+                    }
+                  )
+                  .then((response) => (produit[j] = response.data)) // on met le produit variant trouvé dans le tableau
+                  .catch((error) => console.log(error));
               }
-            )
-            .then((response) => (this.listeCommande[k][l] = response.data))
-            .catch((error) => console.log(error));
+            }
+          }
+
+          this.listeCommandeLire[i] = produit; // le tableau des produits de la commande est placé dans le tableau des commandes
+          this.listeCommande = this.listeCommandeLire;
         }
+        this.lastCommandes = this.commandesLire;
       }
+      this.commandes = this.commandesLire;
+      this.listeCommande = this.listeCommandeLire;
       this.ready = 1;
-      console.log(this.ready2);
-      //   for (let k = 0; k < this.listeCommandeVar.length; k++) {
-      //     for (let l = 0; l < this.listeCommandeVar[k].length; l++) {
-      //       for (
-      //         let b = 0;
-      //         b < this.listeCommandeVar[k][l].variations.length;
-      //         b++
-      //       ) {
-      //         await axios
-      //           .get(
-      //             window.addresse +
-      //               "/wp-json/wc/v3/products/" +
-      //               this.listeCommandeVar[k][l].id +
-      //               "/variations/" +
-      //               this.listeCommandeVar[k][l].variations[b],
-      //             {
-      //               headers: {
-      //                 Authorization: "Bearer " + this.token,
-      //               },
-      //             }
-      //           )
-      //           .then(
-      //             (response) =>
-      //               (this.listeCommandeVar[k][l].variations[b] = response.data),
-      //             console.log(this.listeCommandeVar[k][l].variations[b])
-      //           )
-      //           .catch((error) => console.log(error));
-      //       }
-      //     }
-      //   }
-      //   this.ready2 = 1;
-      //   console.log(this.ready2);
+   //   this.test(this.date);
     },
     editOrders(idCommande) {
       const url = window.addresse + "/wp-json/wc/v3/orders/" + idCommande;
@@ -283,21 +326,53 @@ export default {
             },
           }
         )
-        .then((res) => console.log(res), console.log("modif ok"))
+        .then(
+          (res) => console.log(res),
+          console.log("modif ok"),
+          this.getCommandes()
+        )
         .catch((error) => console.log(error));
     },
+    showAllOrder(id){
+      this.showAll = !this.showAll
+      this.idTab = id
+    }
   },
 };
 </script>
 
 <style scoped>
-.table {
+table {
+  width: 70%;
+  margin: auto;
   margin-bottom: 2%;
 }
-.tdImg {
-  max-width: 20%;
+.titreCommande {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
-tfoot {
-  text-align: right;
+.titreCommande h5 {
+  padding-top: 0.5%;
+}
+.tdImg {
+  width: 13%;
+}
+.tdBody td {
+  width: 15%;
+}
+.tdFooter {
+  display: flex;
+  justify-content: space-between;
+}
+.infoClient1 {
+  margin-bottom: -2%;
+}
+.trFooterSelect {
+  float: right;
+}
+.trFooterSelectBtn {
+  float: right;
+  margin-top: 0.5%;
 }
 </style>

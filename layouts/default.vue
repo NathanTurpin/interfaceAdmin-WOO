@@ -102,7 +102,7 @@ export default {
     };
   },
   mounted() {
-    window.addresse = "http://applicommande.local/"
+    window.addresse = process.env.API_URL
     this.roleChecking();
   },
   methods: {

@@ -1,143 +1,139 @@
 <template>
   <div class="main">
-    <div >
-      <div
-        v-if="ready === 0"
-        id="chargement"
-        style="
-          width: 150px;
-          height: 50px;
-          position: absolute;
-          top: 45%;
-          left: 45%;
-          color: red;
-          font-weight: bold;
-          font-size: 14px;
-        "
-      >
-        <img src="../static/loader.gif" /> Chargement ...
-      </div>
-      <table
-        class="table table-bordered"
-        v-for="(commande, idCommande) in commandes"
-        :key="idCommande"
-      >
-      <div v-if="commande.status === 'pending'">
-        <thead v-if="commande  ">
-          <tr>
-            <th class="table-dark titreCommande" scope="col">
-              <h3>{{ commande.id }}</h3>
-              <h5>{{ commande.order_key }} | {{ commande.date_created }}</h5>
-              <h5>{{ commande.total }} €</h5>
-            </th>
-          </tr>
-        </thead>
-        <tbody
-          class="tdBody"
-          v-for="(item, id) in commande.line_items"
-          :key="id"
+    <div>
+      <div v-for="(commande, idCommande) in filteredList" :key="idCommande">
+        <table
+          class="table table-bordered"
+          v-if="commande.status != 'completed'"
         >
-          <div v-if="item.variation_id != 0">
-            <tr class="table-info" v-if="id === 0">
-              <td>ID_variant</td>
-              <td>Nom_variant</td>
-              <td>Quantité</td>
-              <td>Prix unitaire</td>
-              <td>Prix total HT</td>
-              <td>Image produit</td>
-            </tr>
+          <thead v-if="commande" @click="showAllOrder(idCommande)">
             <tr>
+              <th class="table-dark titreCommande" scope="col">
+                <h3>{{ commande.id }}</h3>
+                <h5>
+                  {{ commande.order_key }} |
+                  {{ commande.date_created.replace("T", " ") }}
+                </h5>
+                <h5>{{ commande.total }} €</h5>
+              </th>
+            </tr>
+          </thead>
+          <div>
+          <tbody
+            v-show="showAll && idTab === idCommande"
+            class="tdBody"
+            v-for="(item, id) in commande.line_items"
+            :key="id"
+          >
+            <tr class="table-info" v-if="item.variation_id != 0">
+              <td v-if="id === 0">ID_variant</td>
+              <td v-if="id === 0">Nom_variant</td>
+              <td v-if="id === 0">Quantité</td>
+              <td v-if="id === 0">Prix unitaire</td>
+              <td v-if="id === 0">Prix total HT</td>
+              <td v-if="id === 0">Image produit</td>
+            </tr>
+            <tr v-if="item.variation_id != 0">
               <td>{{ item.variation_id }}</td>
               <td class="tdNameVar">{{ item.name }}</td>
               <td>{{ item.quantity }}</td>
               <td>{{ item.price }} €</td>
               <td>{{ item.subtotal }} €</td>
-              <td
-                class="tdImg"
-                v-if="listeCommande[idCommande][id] !== undefined"
-              >
-                <img
-                  class="img-fluid"
-                  v-if="listeCommande[idCommande][id].image !== undefined"
-                  :src="listeCommande[idCommande][id].image.src"
-                  alt="Card image cap"
-                />
-              </td>
+              <div v-if="listeCommande[idCommande] != undefined">
+                <td
+                  class="tdImg"
+                  v-if="listeCommande[idCommande][id] !== undefined"
+                >
+                  <img
+                    class="img-fluid"
+                    v-if="listeCommande[idCommande][id].image !== undefined"
+                    :src="listeCommande[idCommande][id].image.src"
+                    alt="Card image cap"
+                  />
+                </td>
+              </div>
+              <div v-else><img src="../static/loader.gif" /></div>
             </tr>
-          </div>
-          <div v-if="item.variation_id === 0">
-            <tr class="table-info" v-if="id === 0">
-              <td>ID_produit</td>
-              <td>Nom</td>
-              <td>Quantité</td>
-              <td>Prix unitaire</td>
-              <td>Prix total HT</td>
-              <td>Image produit</td>
+            <tr class="table-info" v-if="item.variation_id === 0">
+              <td v-if="id === 0">ID_produit</td>
+              <td v-if="id === 0">Nom</td>
+              <td v-if="id === 0">Quantité</td>
+              <td v-if="id === 0">Prix unitaire</td>
+              <td v-if="id === 0">Prix total HT</td>
+              <td v-if="id === 0">Image produit</td>
             </tr>
-            <tr>
+            <tr v-if="item.variation_id === 0">
               <td>{{ item.product_id }}</td>
               <td>{{ item.name }}</td>
               <td>{{ item.quantity }}</td>
               <td>{{ item.price }} €</td>
               <td>{{ item.subtotal }} €</td>
-              <td
-                class="tdImg"
-                v-if="listeCommande[idCommande][id] !== undefined"
-              >
-                <img
-                  class="img-fluid"
-                  v-if="listeCommande[idCommande][id].images[0] !== undefined"
-                  :src="listeCommande[idCommande][id].images[0].src"
-                  alt="Card image cap"
-                />
+              <div v-if="listeCommande[idCommande] != undefined">
+                <td
+                  class="tdImg"
+                  v-if="listeCommande[idCommande][id] !== undefined"
+                >
+                  <img
+                    class="img-fluid"
+                    v-if="listeCommande[idCommande][id].images !== undefined"
+                    :src="listeCommande[idCommande][id].images[0].src"
+                    alt="Card image cap"
+                  />
+                </td>
+              </div>
+              <div v-else><img src="../static/loader.gif" /></div>
+            </tr>
+          </tbody>
+          </div>
+          <tfoot v-show="showAll && idTab === idCommande">
+            <div v-if="commande.coupon_lines.length !== 0">
+              {{ commande.coupon_lines[0].code }}
+              {{ commande.coupon_lines[0].discount }}€
+            </div>
+            <tr>
+              <td class="tdFooter">
+                <h4>
+                  {{ commande.billing.first_name }}
+                  {{ commande.billing.last_name }}
+                </h4>
+
+                <div>
+                  <h6>Info client :</h6>
+
+                  <p class="infoClient1">
+                    {{ commande.billing.address_1 }}
+                    {{ commande.billing.address_2 }}
+                    {{ commande.billing.city }}
+                    {{ commande.billing.postcode }}
+                    {{ commande.billing.country }}
+                  </p>
+                  <p class="infoClient1">
+                    {{ commande.billing.email }}
+                  </p>
+                  <p>
+                    {{ commande.billing.phone }}
+                  </p>
+                </div>
               </td>
             </tr>
-          </div>
-        </tbody>
-        <tfoot>
-          <tr>
-            <td class="tdFooter">
-              <h4>
-                {{ commande.billing.first_name }}
-                {{ commande.billing.last_name }}
-              </h4>
-
-              <h6>Info client :</h6>
-              <div>
-                <p class="infoClient1">
-                  {{ commande.billing.address_1 }}
-                  {{ commande.billing.address_2 }}
-                  {{ commande.billing.city }}
-                  {{ commande.billing.postcode }}
-                  {{ commande.billing.country }}
-                </p>
-                <p class="infoClient1">
-                  {{ commande.billing.email }}
-                </p>
-                <p>
-                  {{ commande.billing.phone }}
-                </p>
-              </div>
-            </td>
-          </tr>
-          <tr class="trFooterSelect">
-            <select v-model="form.statusEdit">
-              <option disabled value="">{{ commande.status }}</option>
-              <option>completed</option>
-            </select>
-            <span>Selected: {{ form.statusEdit }}</span>
 
             <button
               type="button"
-              class="btn btn-light"
+              class="btn btn-danger trFooterSelectBtn"
               @click="editOrders(commande.id)"
             >
-              valider
+              Valider
             </button>
-          </tr>
-        </tfoot>
-        </div>
-      </table>
+            <tr class="trFooterSelect">
+              <select v-model="form.statusEdit">
+                <option disabled value="">{{ commande.status }}</option>
+                <option>completed</option>
+              </select>
+              <span>Selected: {{ form.statusEdit }}</span>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
     </div>
   </div>
 </template>
@@ -155,6 +151,10 @@ export default {
       form: {
         statusEdit: "",
       },
+      showAll: false,
+      idTab: null,
+      choixOption: "",
+
       ready: 0,
       commandes: [],
       commandesLire: [],
@@ -165,6 +165,22 @@ export default {
       adresse: window.addresse + "/assets/loader.gif",
     };
   },
+  computed: {
+    filteredList() {
+      try {
+        return this.commandes.filter((commande) => {
+          if (this.choixOption != "completed") {
+            return this.commandes;
+          } else
+            return commande.status.toLowerCase().includes(this.choixOption);
+        });
+      } catch (error) {
+        this.getCommandes();
+        // console.log(error)
+        return 0;
+      }
+    },
+  },
   mounted() {
     var self = this;
     self.getCommandes();
@@ -173,6 +189,10 @@ export default {
     }, 40000);
   },
   methods: {
+    changeType(event) {
+      this.choixOption = event.target.value;
+      // this.selectedCountry = event.target.options[event.target.options.selectedIndex].text
+    },
     async getCommandes() {
       await axios
         .get(window.addresse + "wp-json/wc/v3/orders", {
@@ -182,6 +202,10 @@ export default {
         })
         .then((response) => (this.commandesLire = response.data))
         .catch((error) => console.log(error));
+
+      this.commandes = this.commandesLire;
+
+      // console.log(this.commandesLire)
       if (this.commandesLire.length > this.lastCommandes.length) {
         this.ready = 0;
         for (let i = 0; i < this.commandesLire.length; i++) {
@@ -228,12 +252,14 @@ export default {
           }
 
           this.listeCommandeLire[i] = produit; // le tableau des produits de la commande est placé dans le tableau des commandes
+          this.listeCommande = this.listeCommandeLire;
         }
         this.lastCommandes = this.commandesLire;
       }
       this.commandes = this.commandesLire;
       this.listeCommande = this.listeCommandeLire;
       this.ready = 1;
+      //   this.test(this.date);
     },
     editOrders(idCommande) {
       const url = window.addresse + "/wp-json/wc/v3/orders/" + idCommande;
@@ -249,8 +275,16 @@ export default {
             },
           }
         )
-        .then((res) => console.log(res), console.log("modif ok"),this.getCommandes())
+        .then(
+          (res) => console.log(res),
+          console.log("modif ok"),
+          this.getCommandes()
+        )
         .catch((error) => console.log(error));
+    },
+    showAllOrder(id) {
+      this.showAll = !this.showAll;
+      this.idTab = id;
     },
   },
 };
@@ -262,6 +296,10 @@ table {
   margin: auto;
   margin-bottom: 2%;
 }
+thead,
+tfoot {
+  width: 100%;
+}
 .titreCommande {
   display: flex;
   flex-wrap: wrap;
@@ -270,11 +308,8 @@ table {
 .titreCommande h5 {
   padding-top: 0.5%;
 }
-.tdImg {
-  width: 13%;
-}
 .tdBody td {
-  width: 15%;
+  width: 23%;
 }
 .tdFooter {
   display: flex;
@@ -285,5 +320,9 @@ table {
 }
 .trFooterSelect {
   float: right;
+}
+.trFooterSelectBtn {
+  float: right;
+  margin-top: 0.5%;
 }
 </style>
