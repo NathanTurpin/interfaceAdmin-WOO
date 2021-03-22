@@ -144,17 +144,27 @@
                       </div>
                     </div>
                     <br />
-                    <p>Selectionnés:</p>
-                    <span v-for="prod in tabProdName"> {{ prod }}</span> <br />
-
+                    <div>
+                      <p class="col-sm-4 col-form-label">Selectionnés:</p>
+                      <span
+                        class="col-sm-8"
+                        v-for="(prod, index) in tabProdName"
+                        :key="index"
+                        @click="suppProSelected(index)"
+                      >
+                        {{ prod }}</span
+                      >
+                      <br />
+                    </div>
                     <!-- PRODUITS EXCLU DU COUPON -->
-                    <!-- <label class="col-sm-4 col-form-label" for="">
-                      Exclure les produits :
+
+                    <label class="col-sm-4 col-form-label" for="">
+                      Exclure les Produits :
                     </label>
                     <div class="col-sm-8">
                       <select
                         v-model="selectedProdExclu"
-                        @change="pushExcluProd(selectedProdExclu)"
+                        @change="selectProdVariantExclu(selectedProdExclu)"
                       >
                         <option
                           v-for="(product, key) in products"
@@ -164,13 +174,36 @@
                           {{ product.name }}
                         </option>
                       </select>
+
+                      <div v-if="productsVarTestExclu">
+                        <div
+                          v-for="(proVarExclu, key) in productsVarExclu"
+                          :value="key"
+                          :key="key"
+                        >
+                          <p v-for="nameProVarExclu in proVarExclu.attributes">
+                            <button @click="pushProdVariantExclu(proVarExclu)">
+                              {{ nameProVarExclu.name }}
+                              {{ nameProVarExclu.option }}
+                            </button>
+                          </p>
+                        </div>
+                      </div>
                     </div>
                     <br />
-                    <p>Selectionnés:</p>
-                    <span v-for="prod in tabProdExcluName"> {{ prod }}</span>
-                    <br /><br /> -->
-                    <hr />
-
+                    <div>
+                      <p class="col-sm-4 col-form-label">Selectionnés:</p>
+                      <span
+                        class="col-sm-8"
+                        v-for="(prod, indexExclu) in tabProdNameExclu"
+                        :key="indexExclu"
+                        @click="suppProSelectedExclu(indexExclu)"
+                      >
+                        {{ prod }}</span
+                      >
+                      <br />
+                      <hr />
+                    </div>
                     <!-- CATEGORIES POUR LE COUPON -->
                     <label class="col-sm-4 col-form-label" for="">
                       Categories de produits :
@@ -191,12 +224,19 @@
                     </div>
                     <br />
                     <p>Selectionnés:</p>
-                    <span v-for="cat in tabCatName"> {{ cat }}</span> <br />
+                    <span
+                      v-for="(cat, index) in tabCatName"
+                      :key="index"
+                      @click="suppCatSelected(index)"
+                    >
+                      {{ cat }}</span
+                    >
+                    <br />
 
                     <br />
 
                     <!-- CATEGORIES EXCLU DU COUPON -->
-                    <!-- <label class="col-sm-4 col-form-label" for="">
+                    <label class="col-sm-4 col-form-label" for="">
                       Exclure les categories :
                     </label>
                     <div class="col-sm-8">
@@ -215,8 +255,14 @@
                     </div>
                     <br />
                     <p>Selectionnés:</p>
-                    <span v-for="cat in tabCatExcluName"> {{ cat }}</span>
-                    <br /> -->
+                    <span
+                      v-for="(cat, indexExclu) in tabCatExcluName"
+                      :key="indexExclu"
+                      @click="suppCatSelectedExclu(indexExclu)"
+                    >
+                      {{ cat }}</span
+                    >
+                    <br />
                   </div>
                 </b-card-text>
 
@@ -277,22 +323,24 @@ export default {
       limiteBtn: false,
       selected: "fixed_cart",
       selectedProd: "",
-      // selectedProdExclu: "",
+      selectedProdExclu: "",
       selectedCat: "",
-      // selectedCatExclu: "",
+      selectedCatExclu: "",
       products: [],
       productsVar: [],
+      productsVarExclu: [],
       categories: [],
       tabProdName: [],
-      // tabProdExcluName: [],
+      tabProdNameExclu: [],
       tabCatName: [],
-      // tabCatExcluName: [],
+      tabCatExcluName: [],
       options: [
         { text: "Panier", value: "fixed_cart" },
         { text: "pourcentage", value: "percent" },
         { text: "Produit", value: "fixed_product" },
       ],
       productsVarTest: false,
+      productsVarTestExclu: false,
       form: {
         code: "",
         description: "",
@@ -304,9 +352,9 @@ export default {
         individual_use: false,
         exclude_sale_items: false,
         tabProd: [],
-        // tabExcluProd: [],
+        tabProdExclu: [],
         tabCat: [],
-        // tabCatExclu: [],
+        tabCatExclu: [],
         usage_limit: null,
         usage_limit_per_user: null,
         limit_usage_to_x_items: null,
@@ -333,7 +381,7 @@ export default {
             individual_use: this.form.individual_use,
             exclude_sale_items: this.form.exclude_sale_items,
             product_ids: this.form.tabProd,
-            excluded_product_ids: this.form.tabExcluProd,
+            excluded_product_ids: this.form.tabProdExclu,
             product_categories: this.form.tabCat,
             excluded_product_categories: this.form.tabCatExclu,
             usage_limit: this.form.usage_limit,
@@ -344,11 +392,13 @@ export default {
         )
         .then((response) => console.log(response));
     },
-    pushProd(selectedProd) {
-      return (
-        this.form.tabProd.push(this.products[selectedProd].id),
-        this.tabProdName.push(this.products[selectedProd].name)
-      );
+
+    pushProdVariant(nameProVar) {
+      console.log(nameProVar.id);
+      this.form.tabProd.push(nameProVar.id);
+      for (let i = 0; i < nameProVar.attributes.length; i++) {
+        this.tabProdName.push(nameProVar.attributes[i].option);
+      }
     },
     selectProdVariant(selectedProd) {
       this.productsVar = [];
@@ -390,22 +440,54 @@ export default {
         this.tabProdName.push(this.products[selectedProd].name);
       }
     },
-    pushProdVariant(nameProVar) {
-      console.log(nameProVar.id);
-        this.form.tabProd.push(nameProVar.id);
-        for(let i=0;i<nameProVar.attributes.length;i++) {
-        this.tabProdName.push(nameProVar.attributes[i].option);
 
-        }
-        
-
+    pushProdVariantExclu(nameProVarExclu) {
+      console.log(nameProVarExclu);
+      this.form.tabProdExclu.push(nameProVarExclu.id);
+      for (let i = 0; i < nameProVarExclu.attributes.length; i++) {
+        this.tabProdNameExclu.push(nameProVarExclu.attributes[i].option);
+      }
     },
-    // pushExcluProd(selectedProdExclu) {
-    //   return (
-    //     this.form.tabExcluProd.push(this.products[selectedProdExclu].id),
-    //     this.tabProdExcluName.push(this.products[selectedProdExclu].name)
-    //   );
-    // },
+    selectProdVariantExclu(selectedProdExclu) {
+      this.productsVarExclu = [];
+      console.log(this.products[selectedProdExclu].variations.length);
+      if (this.products[selectedProdExclu].variations.length != 0) {
+        console.log("in");
+
+        this.productsVarTestExclu = true;
+        console.log(this.products[selectedProdExclu].variations);
+        this.products[selectedProdExclu].variations.forEach((element) => {
+          console.log(element);
+          axios
+            .get(
+              window.addresse +
+                "wp-json/wc/v3/products/" +
+                this.products[selectedProdExclu].id +
+                "/variations/" +
+                element,
+              {
+                headers: {
+                  Authorization: "Bearer " + this.token,
+                },
+              }
+            )
+            .then(
+              (response) => (
+                this.productsVarExclu.push(response.data),
+                console.log(this.productsVarExclu)
+              )
+            )
+            .catch((error) => console.log(error));
+        });
+      } else {
+        this.productsVarTestExclu = false;
+
+        console.log("out");
+
+        this.form.tabProdExclu.push(this.products[selectedProdExclu].id);
+        this.tabProdNameExclu.push(this.products[selectedProdExclu].name);
+      }
+    },
     getProduct() {
       axios
         .get(window.addresse + "wp-json/wc/v3/products", {
@@ -424,7 +506,13 @@ export default {
 
       // console.log(this.products.id)
     },
-    getVariants(products) {},
+    suppProSelected(index) {
+      this.form.tabProd.splice(index, 1), this.tabProdName.splice(index, 1);
+    },
+    suppProSelectedExclu(indexExclu) {
+      this.form.tabProdExclu.splice(indexExclu, 1),
+        this.tabProdNameExclu.splice(indexExclu, 1);
+    },
     getCategories() {
       axios
         .get(window.addresse + "wp-json/wc/v3/products/categories", {
@@ -445,12 +533,20 @@ export default {
         this.tabCatName.push(this.categories[selectedCat].name)
       );
     },
-    // pushCatExclu(selectedCatExclu) {
-    //   return (
-    //     this.form.tabCatExclu.push(this.categories[selectedCatExclu].id),
-    //     this.tabCatExcluName.push(this.categories[selectedCatExclu].name)
-    //   );
-    // },
+    pushCatExclu(selectedCatExclu) {
+      return (
+        this.form.tabCatExclu.push(this.categories[selectedCatExclu].id),
+        this.tabCatExcluName.push(this.categories[selectedCatExclu].name)
+      );
+    },
+    suppCatSelectedExclu(indexExclu) {
+      this.form.tabCatExclu.splice(indexExclu, 1),
+        this.tabCatExcluName.splice(indexExclu, 1);
+    },
+    suppCatSelected(index) {
+      this.form.tabCat.splice(index, 1), this.tabCatName.splice(index, 1);
+    },
+
     generateRdmCode() {
       var result = "";
       var characters = "abcdefghijklmnopqrstuvwxyz0123456789";

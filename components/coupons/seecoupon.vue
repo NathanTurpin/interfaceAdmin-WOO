@@ -111,7 +111,7 @@ export default {
             Authorization: "Bearer " + this.token,
           },
         })
-        .then((res) => console.log(res))
+        .then((res) => console.log(res), this.getCoupons())
         .catch((error) => {
           console.log(error);
         });
