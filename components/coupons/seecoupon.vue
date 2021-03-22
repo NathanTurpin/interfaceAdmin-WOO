@@ -32,31 +32,25 @@
             :coupon="coupon"
           />
          </div> -->
-<!-- 
+          <!-- 
           <button
             @click="showEditComponent(coupon, idCoupon)"
             class="btn btn-light"
           >
             ok
           </button> -->
-          <button  @click="showModal(coupon, idCoupon)">
-            ShowModal
-        </button>
+          <button v-b-modal.modal-scrollable v-b-modal.modal-xl @click="showModal(coupon, idCoupon)">ShowModal</button>
         </div>
       </div>
     </div>
-     
-    <editCoupon
-      :coupon="coupon"
-      ref="modalComponent"
-    />
+
+    <editCoupon :coupon="coupon" :productCoupon="productCoupon" ref="modalComponent" />
   </div>
 </template>
 
 <script>
 import axios from "axios";
 import editCoupon from "@/components/coupons/editCoupon";
-const baseURL = "google.com";
 export default {
   components: {
     editCoupon,
@@ -69,13 +63,12 @@ export default {
       showEdit: false,
       coupon: [],
       componentEditCoupon: false,
-
+      productCoupon : [],
       idTab: null,
     };
   },
   mounted() {
     this.getCoupons();
-alert(process.env.API_URL)    
   },
   computed: {
     filteredList() {
@@ -90,7 +83,6 @@ alert(process.env.API_URL)
     },
   },
   methods: {
-   
     // AFFICHE LES PRODUITS
     getCoupons() {
       axios
@@ -125,12 +117,28 @@ alert(process.env.API_URL)
         });
     },
     // EDIT PRODUCT
-      showModal(id, idProduct) {
-                this.$refs.modalComponent.show();
-                
-      this.coupon = id;
+    showModal(coupon, idProduct) {
+      this.productCoupon = []
+      this.$refs.modalComponent.show();
+      this.coupon = coupon;
       this.idTab = idProduct;
-            },
+      console.log()
+      this.coupon.product_ids.forEach(element => {
+         axios
+        .get(window.addresse + "wp-json/wc/v3/products/" + element, {
+          headers: {
+            Authorization: "Bearer " + this.token,
+          },
+        })
+        .then(
+          (response) => (
+            (this.productCoupon.push(response.data), console.log(this.productCoupon))
+          )
+        )
+        .catch((error) => console.log(error));
+      });
+     
+    },
   },
 };
 </script>

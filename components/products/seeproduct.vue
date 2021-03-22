@@ -25,7 +25,7 @@
             <p>{{ product.salePrice }}</p>
           </div>
           <p v-else v-html="product.price_html"></p>
-          <p>{{product.status}}</p>
+          <p>{{ product.status }}</p>
           <button class="btn btn-secondary" @click="infoProd(idProduct)">
             Info produit
           </button>
@@ -142,15 +142,13 @@ export default {
   computed: {
     filteredList() {
       try {
- return this.products.filter((product) => {
-        return product.name.toLowerCase().includes(this.search.toLowerCase());
-      });
-      }
-      catch(error){
+        return this.products.filter((product) => {
+          return product.name.toLowerCase().includes(this.search.toLowerCase());
+        });
+      } catch (error) {
         this.getProduct();
-        return 0
+        return 0;
       }
-     
     },
   },
   methods: {
@@ -232,7 +230,7 @@ export default {
 }
 .card-body {
   padding: inherit;
-  margin:0% 0% 2% -2% ;
+  margin: 0% 0% 2% -2%;
 }
 .btn-light {
 }

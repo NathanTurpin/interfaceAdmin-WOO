@@ -306,7 +306,7 @@ export default {
             date_expires: this.form.date_expires,
             maximum_amount: this.form.maximum_amount,
             minimum_amount: this.form.minimum_amount,
-            individual_use: this.formindividual_use,
+            individual_use: this.form.individual_use,
             exclude_sale_items: this.form.exclude_sale_items,
             product_ids: this.form.tabProd,
             excluded_product_ids: this.form.tabExcluProd,
