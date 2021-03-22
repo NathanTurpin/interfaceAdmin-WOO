@@ -10,7 +10,9 @@
         required
       >
       </b-form-input>
-      <button type="button" class="btn btn-info" @click="generateRdmCode()">Generate</button>
+      <button type="button" class="btn btn-info" @click="generateRdmCode()">
+        Generate
+      </button>
 
       <!-- DESCRIPTION -->
 
@@ -116,7 +118,7 @@
                     <div class="col-sm-8">
                       <select
                         v-model="selectedProd"
-                        @change="pushProd(selectedProd)"
+                        @change="selectProdVariant(selectedProd)"
                       >
                         <option
                           v-for="(product, key) in products"
@@ -126,13 +128,27 @@
                           {{ product.name }}
                         </option>
                       </select>
+
+                      <div v-if="productsVarTest">
+                        <div
+                          v-for="(proVar, key) in productsVar"
+                          :value="key"
+                          :key="key"
+                        >
+                          <p v-for="nameProVar in proVar.attributes">
+                            <button @click="pushProdVariant(proVar)">
+                              {{ nameProVar.name }} {{ nameProVar.option }}
+                            </button>
+                          </p>
+                        </div>
+                      </div>
                     </div>
                     <br />
                     <p>Selectionnés:</p>
                     <span v-for="prod in tabProdName"> {{ prod }}</span> <br />
 
                     <!-- PRODUITS EXCLU DU COUPON -->
-                    <label class="col-sm-4 col-form-label" for="">
+                    <!-- <label class="col-sm-4 col-form-label" for="">
                       Exclure les produits :
                     </label>
                     <div class="col-sm-8">
@@ -152,7 +168,7 @@
                     <br />
                     <p>Selectionnés:</p>
                     <span v-for="prod in tabProdExcluName"> {{ prod }}</span>
-                    <br /><br />
+                    <br /><br /> -->
                     <hr />
 
                     <!-- CATEGORIES POUR LE COUPON -->
@@ -180,7 +196,7 @@
                     <br />
 
                     <!-- CATEGORIES EXCLU DU COUPON -->
-                    <label class="col-sm-4 col-form-label" for="">
+                    <!-- <label class="col-sm-4 col-form-label" for="">
                       Exclure les categories :
                     </label>
                     <div class="col-sm-8">
@@ -200,7 +216,7 @@
                     <br />
                     <p>Selectionnés:</p>
                     <span v-for="cat in tabCatExcluName"> {{ cat }}</span>
-                    <br />
+                    <br /> -->
                   </div>
                 </b-card-text>
 
@@ -239,7 +255,13 @@
           </b-row>
         </b-card>
       </div>
-      <button type="button" class="btn btn-danger btnValider" @click="addCoupon()">Valider</button>
+      <button
+        type="button"
+        class="btn btn-danger btnValider"
+        @click="addCoupon()"
+      >
+        Valider
+      </button>
     </section>
   </div>
 </template>
@@ -255,20 +277,22 @@ export default {
       limiteBtn: false,
       selected: "fixed_cart",
       selectedProd: "",
-      selectedProdExclu: "",
+      // selectedProdExclu: "",
       selectedCat: "",
-      selectedCatExclu: "",
+      // selectedCatExclu: "",
       products: [],
+      productsVar: [],
       categories: [],
       tabProdName: [],
-      tabProdExcluName: [],
+      // tabProdExcluName: [],
       tabCatName: [],
-      tabCatExcluName: [],
+      // tabCatExcluName: [],
       options: [
         { text: "Panier", value: "fixed_cart" },
         { text: "pourcentage", value: "percent" },
         { text: "Produit", value: "fixed_product" },
       ],
+      productsVarTest: false,
       form: {
         code: "",
         description: "",
@@ -280,9 +304,9 @@ export default {
         individual_use: false,
         exclude_sale_items: false,
         tabProd: [],
-        tabExcluProd: [],
+        // tabExcluProd: [],
         tabCat: [],
-        tabCatExclu: [],
+        // tabCatExclu: [],
         usage_limit: null,
         usage_limit_per_user: null,
         limit_usage_to_x_items: null,
@@ -326,12 +350,62 @@ export default {
         this.tabProdName.push(this.products[selectedProd].name)
       );
     },
-    pushExcluProd(selectedProdExclu) {
-      return (
-        this.form.tabExcluProd.push(this.products[selectedProdExclu].id),
-        this.tabProdExcluName.push(this.products[selectedProdExclu].name)
-      );
+    selectProdVariant(selectedProd) {
+      this.productsVar = [];
+      console.log(this.products[selectedProd].variations.length);
+      if (this.products[selectedProd].variations.length != 0) {
+        console.log("in");
+
+        this.productsVarTest = true;
+        console.log(this.products[selectedProd].variations);
+        this.products[selectedProd].variations.forEach((element) => {
+          console.log(element);
+          axios
+            .get(
+              window.addresse +
+                "wp-json/wc/v3/products/" +
+                this.products[selectedProd].id +
+                "/variations/" +
+                element,
+              {
+                headers: {
+                  Authorization: "Bearer " + this.token,
+                },
+              }
+            )
+            .then(
+              (response) => (
+                this.productsVar.push(response.data),
+                console.log(this.productsVar)
+              )
+            )
+            .catch((error) => console.log(error));
+        });
+      } else {
+        this.productsVarTest = false;
+
+        console.log("out");
+
+        this.form.tabProd.push(this.products[selectedProd].id);
+        this.tabProdName.push(this.products[selectedProd].name);
+      }
     },
+    pushProdVariant(nameProVar) {
+      console.log(nameProVar.id);
+        this.form.tabProd.push(nameProVar.id);
+        for(let i=0;i<nameProVar.attributes.length;i++) {
+        this.tabProdName.push(nameProVar.attributes[i].option);
+
+        }
+        
+
+    },
+    // pushExcluProd(selectedProdExclu) {
+    //   return (
+    //     this.form.tabExcluProd.push(this.products[selectedProdExclu].id),
+    //     this.tabProdExcluName.push(this.products[selectedProdExclu].name)
+    //   );
+    // },
     getProduct() {
       axios
         .get(window.addresse + "wp-json/wc/v3/products", {
@@ -341,11 +415,16 @@ export default {
         })
         .then(
           (response) => (
-            (this.products = response.data), console.log(this.products)
+            (this.products = response.data),
+            console.log(this.products),
+            this.getVariants(this.products)
           )
         )
         .catch((error) => console.log(error));
+
+      // console.log(this.products.id)
     },
+    getVariants(products) {},
     getCategories() {
       axios
         .get(window.addresse + "wp-json/wc/v3/products/categories", {
@@ -366,16 +445,15 @@ export default {
         this.tabCatName.push(this.categories[selectedCat].name)
       );
     },
-    pushCatExclu(selectedCatExclu) {
-      return (
-        this.form.tabCatExclu.push(this.categories[selectedCatExclu].id),
-        this.tabCatExcluName.push(this.categories[selectedCatExclu].name)
-      );
-    },
+    // pushCatExclu(selectedCatExclu) {
+    //   return (
+    //     this.form.tabCatExclu.push(this.categories[selectedCatExclu].id),
+    //     this.tabCatExcluName.push(this.categories[selectedCatExclu].name)
+    //   );
+    // },
     generateRdmCode() {
       var result = "";
-      var characters =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      var characters = "abcdefghijklmnopqrstuvwxyz0123456789";
       var charactersLength = characters.length;
       for (var i = 0; i < 6; i++) {
         result += characters.charAt(
@@ -399,9 +477,9 @@ export default {
 
 <style scoped>
 .btnValider {
-    float: right;
+  float: right;
 }
 button {
-    margin : 1% 0% 1% 0%
+  margin: 1% 0% 1% 0%;
 }
 </style>
