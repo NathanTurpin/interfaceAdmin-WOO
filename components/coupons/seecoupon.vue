@@ -39,12 +39,22 @@
           >
             ok
           </button> -->
-          <button v-b-modal.modal-scrollable v-b-modal.modal-xl @click="showModal(coupon, idCoupon)">ShowModal</button>
+          <button
+            v-b-modal.modal-scrollable
+            v-b-modal.modal-xl
+            @click="showModal(coupon, idCoupon)"
+          >
+            ShowModal
+          </button>
         </div>
       </div>
     </div>
 
-    <editCoupon :coupon="coupon" :productCoupon="productCoupon" ref="modalComponent" />
+    <editCoupon
+      :coupon="coupon"
+      :productCoupon="productCoupon"
+      ref="modalComponent"
+    />
   </div>
 </template>
 
@@ -63,7 +73,7 @@ export default {
       showEdit: false,
       coupon: [],
       componentEditCoupon: false,
-      productCoupon : [],
+      productCoupon: [],
       idTab: null,
     };
   },
@@ -118,26 +128,27 @@ export default {
     },
     // EDIT PRODUCT
     showModal(coupon, idProduct) {
-      this.productCoupon = []
+      this.productCoupon = [];
       this.$refs.modalComponent.show();
       this.coupon = coupon;
       this.idTab = idProduct;
-      console.log()
-      this.coupon.product_ids.forEach(element => {
-         axios
-        .get(window.addresse + "wp-json/wc/v3/products/" + element, {
-          headers: {
-            Authorization: "Bearer " + this.token,
-          },
-        })
-        .then(
-          (response) => (
-            (this.productCoupon.push(response.data), console.log(this.productCoupon))
+      console.log();
+      for (let i = 0; i < this.coupon.product_ids.length; i++) {
+        axios
+          .get(window.addresse + "wp-json/wc/v3/products/" + this.coupon.product_ids[i], {
+            headers: {
+              Authorization: "Bearer " + this.token,
+            },
+          })
+          .then(
+            (response) => (
+              this.productCoupon.push(response.data),
+              console.log(this.productCoupon)
+            )
           )
-        )
-        .catch((error) => console.log(error));
-      });
-     
+          .catch((error) => console.log(error));
+      }
+    
     },
   },
 };

@@ -124,14 +124,14 @@
                       <hr />
 
                       <!-- // PRODUITS POUR LE COUPON -->
-                      <label class="col-sm-3 col-form-label" for="">
+
+                      <label class="col-sm-2 col-form-label" for="">
                         Produits :
                       </label>
-                      <div class="col-sm-4 selectProdCat">
-                        Produit
+                      <div class="col-sm-5">
                         <select
                           v-model="selectedProd"
-                          @change="pushProd(selectedProd)"
+                          @change="selectProdVariant(selectedProd)"
                         >
                           <option
                             v-for="(product, key) in products"
@@ -141,33 +141,48 @@
                             {{ product.name }}
                           </option>
                         </select>
-                        
 
-                        <p>Selectionnés:</p>
-
-                        <span v-for="prod in tabProdName"> {{ prod }}</span>
-                        <span v-for="prod in coupon.product_ids"> {{ prod }}</span>
-
-                        <br />
-                      </div>
-                      <div class="col-sm-4 selectProdCat">
+                        <div v-if="productsVarTest">
                           <div
-                            v-for="(productCoup, index) in productCoupon"
-                            :key="index" class="col-sm-4"
+                            v-for="(proVar, key) in productsVar"
+                            :value="key"
+                            :key="key"
                           >
-                            <p
-                              @click="
-                                deleteProductCoupon(productCoup.id, index)
-                              "
-                            >
-                              {{ productCoup.name }} {{ productCoup.id}}
+                            <p v-for="nameProVar in proVar.attributes">
+                              <button @click="pushProdVariant(proVar)">
+                                {{ nameProVar.name }} {{ nameProVar.option }}
+                              </button>
                             </p>
                           </div>
                         </div>
+                      </div>
+                      <div class="col-sm-5">
+                        <p
+                          v-for="(prod, index) in productCoupon"
+                          :key="index"
+                          @click="suppProCoupon(index, prod)"
+                        >
+                          {{ prod.name }}
+                        </p>
+                      </div>
+                      <br />
+                      <label class="col-sm-4 col-form-label"
+                        >Selectionnés:</label
+                      >
+                      <div class="col-sm-8">
+                        <p
+                          v-for="(prod, index) in tabProdName"
+                          :key="index"
+                          @click="suppProSelected(index)"
+                        >
+                          {{ prod }}
+                        </p>
+                      </div>
+
                       <br />
 
                       <!-- PRODUITS EXCLU DU COUPON -->
-                      <label class="col-sm-4 col-form-label" for="">
+                      <!-- <label class="col-sm-4 col-form-label" for="">
                         Exclure les produits :
                       </label>
                       <div class="col-sm-8">
@@ -187,11 +202,11 @@
                       <br />
                       <p>Selectionnés:</p>
                       <span v-for="prod in tabProdExcluName"> {{ prod }}</span>
-                      <br /><br />
+                      <br /><br /> -->
                       <hr />
 
                       <!-- CATEGORIES POUR LE COUPON -->
-                      <label class="col-sm-4 col-form-label" for="">
+                      <!-- <label class="col-sm-4 col-form-label" for="">
                         Categories de produits :
                       </label>
                       <div class="col-sm-8">
@@ -210,12 +225,12 @@
                       </div>
                       <br />
                       <p>Selectionnés:</p>
-                      <span v-for="cat in tabCatName"> {{ cat }}</span> <br />
+                      <span v-for="cat in tabCatName"> {{ cat }}</span> <br /> -->
 
                       <br />
 
                       <!-- CATEGORIES EXCLU DU COUPON -->
-                      <label class="col-sm-4 col-form-label" for="">
+                      <!-- <label class="col-sm-4 col-form-label" for="">
                         Exclure les categories :
                       </label>
                       <div class="col-sm-8">
@@ -235,7 +250,7 @@
                       <br />
                       <p>Selectionnés:</p>
                       <span v-for="cat in tabCatExcluName"> {{ cat }}</span>
-                      <br />
+                      <br /> -->
                     </div>
                   </b-card-text>
 
@@ -308,18 +323,22 @@ export default {
       selectedCatExclu: "",
       products: [],
       categories: [],
+      productsVar: [],
       tabProdName: [],
       tabProdExcluName: [],
       tabCatName: [],
       tabCatExcluName: [],
+      productsVarTest: false,
+      tabProductCouponId: [],
+      lastTab: [],
+      mergedArray: [],
       options: [
         { text: "Panier", value: "fixed_cart" },
         { text: "pourcentage", value: "percent" },
         { text: "Produit", value: "fixed_product" },
       ],
       form: {
-        tabProd: []
-
+        tabProd: [],
       },
       coupon: {
         id: this.coupon.id,
@@ -349,53 +368,6 @@ export default {
     show() {
       this.$refs.modal1.show();
     },
-    editCoupon(idCoupon) {
-      alert(idCoupon);
-      const url = window.addresse + "wp-json/wc/v3/coupons/" + idCoupon;
-      axios
-        .put(
-          url,
-          {
-            description: this.coupon.description,
-            discount_type: this.coupon.discount_type,
-            amount: this.coupon.amount,
-            date_expires: this.coupon.date_expires,
-            maximum_amount: this.coupon.maximum_amount,
-            minimum_amount: this.coupon.minimum_amount,
-            individual_use: this.coupon.individual_use,
-            exclude_sale_items: this.coupon.exclude_sale_items,
-            product_ids: this.coupon.tabProd,
-            excluded_product_ids: this.coupon.tabExcluProd,
-            product_categories: this.coupon.tabCat,
-            excluded_product_categories: this.coupon.tabCatExclu,
-            usage_limit: this.coupon.usage_limit,
-            usage_limit_per_user: this.coupon.usage_limit_per_user,
-            limit_usage_to_x_items: this.coupon.limit_usage_to_x_items,
-          },
-          { headers: { Authorization: "Bearer " + this.token } }
-        )
-        .then((response) => console.log(response))
-        .catch((error) => {
-          console.log(error);
-        });
-    },
-    pushProd(selectedProd) {
-      this.tabProdName = []
-      this.selectedProd= ""
-
-      return (
-        this.coupon.product_ids.push(this.products[selectedProd].id),
-        this.tabProdName.push(this.products[selectedProd].name)
-
-      );
-
-    },
-    pushExcluProd(selectedProdExclu) {
-      return (
-        this.coupon.tabExcluProd.push(this.products[selectedProdExclu].id),
-        this.tabProdExcluName.push(this.products[selectedProdExclu].name)
-      );
-    },
     getProduct() {
       axios
         .get(window.addresse + "wp-json/wc/v3/products", {
@@ -409,6 +381,8 @@ export default {
           )
         )
         .catch((error) => console.log(error));
+
+      // console.log(this.products.id)
     },
     getCategories() {
       axios
@@ -424,17 +398,145 @@ export default {
         )
         .catch((error) => console.log(error));
     },
-    pushCat(selectedCat) {
-      return (
-        this.coupon.tabCat.push(this.categories[selectedCat].id),
-        this.tabCatName.push(this.categories[selectedCat].name)
-      );
+    editCoupon(idCoupon) {
+      alert(idCoupon);
+      const url = window.addresse + "wp-json/wc/v3/coupons/" + idCoupon;
+      console.log(this.lastTab);
+      if (this.lastTab.length != 0) {
+        axios
+          .put(
+            url,
+            {
+              description: this.coupon.description,
+              discount_type: this.coupon.discount_type,
+              amount: this.coupon.amount,
+              date_expires: this.coupon.date_expires,
+              maximum_amount: this.coupon.maximum_amount,
+              minimum_amount: this.coupon.minimum_amount,
+              individual_use: this.coupon.individual_use,
+              exclude_sale_items: this.coupon.exclude_sale_items,
+              product_ids: this.lastTab,
+              excluded_product_ids: this.coupon.tabExcluProd,
+              product_categories: this.coupon.tabCat,
+              excluded_product_categories: this.coupon.tabCatExclu,
+              usage_limit: this.coupon.usage_limit,
+              usage_limit_per_user: this.coupon.usage_limit_per_user,
+              limit_usage_to_x_items: this.coupon.limit_usage_to_x_items,
+            },
+            { headers: { Authorization: "Bearer " + this.token } }
+          )
+          .then((response) => console.log(response))
+          .catch((error) => {
+            console.log(error);
+          });
+      } else {
+        axios
+          .put(
+            url,
+            {
+              description: this.coupon.description,
+              discount_type: this.coupon.discount_type,
+              amount: this.coupon.amount,
+              date_expires: this.coupon.date_expires,
+              maximum_amount: this.coupon.maximum_amount,
+              minimum_amount: this.coupon.minimum_amount,
+              individual_use: this.coupon.individual_use,
+              exclude_sale_items: this.coupon.exclude_sale_items,
+              product_ids: this.coupon.product_ids,
+              excluded_product_ids: this.coupon.tabExcluProd,
+              product_categories: this.coupon.tabCat,
+              excluded_product_categories: this.coupon.tabCatExclu,
+              usage_limit: this.coupon.usage_limit,
+              usage_limit_per_user: this.coupon.usage_limit_per_user,
+              limit_usage_to_x_items: this.coupon.limit_usage_to_x_items,
+            },
+            { headers: { Authorization: "Bearer " + this.token } }
+          )
+          .then((response) => console.log(response))
+          .catch((error) => {
+            console.log(error);
+          });
+      }
     },
-    pushCatExclu(selectedCatExclu) {
-      return (
-        this.coupon.tabCatExclu.push(this.categories[selectedCatExclu].id),
-        this.tabCatExcluName.push(this.categories[selectedCatExclu].name)
+    pushProdVariant(nameProVar) {
+      console.log(nameProVar.id);
+      this.coupon.product_ids.push(nameProVar.id);
+      console.log(this.coupon.product_ids);
+
+      for (let i = 0; i < nameProVar.attributes.length; i++) {
+        this.tabProdName.push(nameProVar.attributes[i].option);
+      }
+    },
+    selectProdVariant(selectedProd) {
+      this.productsVar = [];
+      console.log(this.products[selectedProd].variations.length);
+      if (this.products[selectedProd].variations.length != 0) {
+        console.log("in");
+
+        this.productsVarTest = true;
+        console.log(this.products[selectedProd].variations);
+        this.products[selectedProd].variations.forEach((element) => {
+          console.log(element);
+          axios
+            .get(
+              window.addresse +
+                "wp-json/wc/v3/products/" +
+                this.products[selectedProd].id +
+                "/variations/" +
+                element,
+              {
+                headers: {
+                  Authorization: "Bearer " + this.token,
+                },
+              }
+            )
+            .then(
+              (response) => (
+                this.productsVar.push(response.data),
+                console.log(this.productsVar)
+              )
+            )
+            .catch((error) => console.log(error));
+        });
+      } else {
+        this.productsVarTest = false;
+
+        console.log("out");
+
+        this.coupon.product_ids.push(this.products[selectedProd].id);
+        this.tabProdName.push(this.products[selectedProd].name);
+      }
+      selectedProd = "";
+    },
+    suppProSelected(index) {
+      this.coupon.product_ids.splice(index, 1),
+        this.tabProdName.splice(index, 1);
+    },
+    suppProCoupon(index, prod) {
+      // console.log(index)
+      this.mergedArray = [];
+      this.lastTab = [];
+      console.log("1er tableau :");
+      console.log(this.coupon.product_ids);
+      this.tabProductCouponId = [];
+      for (let i = 0; i < this.productCoupon.length; i++) {
+        this.tabProductCouponId.push(this.productCoupon[i].id); // PUSH TOUS LES ID DES PRODUITS DU COUPON
+      }
+      if (index === this.tabProductCouponId.indexOf(prod.id)) { // SI INDEX (AU CLICK) CORRESPOND A L ID DU PROD ON ENLEVE LE PROD DES TAB
+        console.log("in");
+        console.log(prod.id);
+        this.tabProductCouponId.splice(index, 1);
+        this.coupon.product_ids.splice(index, 1);
+      }
+      console.log(this.tabProductCouponId);
+      this.mergedArray = this.coupon.product_ids.concat( // CONCATENNE LES 2 TAB
+        this.tabProductCouponId
       );
+      this.lastTab = this.mergedArray.filter(
+        (elem, index) => this.mergedArray.indexOf(elem) === index // ON SUPP LES DOUBLONS
+      );
+      console.log("dernier tableau :");
+      console.log(this.lastTab);
     },
     generalBtn() {
       (this.limiteBtn = false), (this.geneBtn = true), (this.restriBtn = false);
@@ -444,13 +546,6 @@ export default {
     },
     limitBtn() {
       (this.limiteBtn = true), (this.geneBtn = false), (this.restriBtn = false);
-    },
-    // SUPP LES PRODUITS
-    deleteProductCoupon(productCoupiD, index) {
-      alert(productCoupiD);
-      alert(index);
-      this.productCoupon.splice(index, 1);
- this.coupon.product_ids.push(this.productCoupon.id)
     },
   },
 };
@@ -470,7 +565,7 @@ button {
   border: solid black 0.5px;
   margin: 1%;
   -webkit-border-radius: 10px 10px 10px 10px;
-border-radius: 10px 10px 10px 10px;
+  border-radius: 10px 10px 10px 10px;
 }
 .selectProdCat div p {
   display: inline-block;
