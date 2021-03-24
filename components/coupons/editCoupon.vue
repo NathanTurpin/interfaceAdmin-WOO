@@ -169,7 +169,7 @@
                             {{ prod.name }}
                             <span v-for="prodVar in prod.attributes">
                               {{ prodVar.name }} {{ prodVar.option }}
-                            </spanf>
+                            </span>
                           </div>
                         </div>
                       </div>
