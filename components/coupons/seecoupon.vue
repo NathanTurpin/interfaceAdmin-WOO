@@ -54,6 +54,7 @@
       :coupon="coupon"
       :productCoupon="productCoupon"
       ref="modalComponent"
+      @clicked="onClickChild"
     />
      <!-- <test
       :coupon="coupon"
@@ -101,6 +102,9 @@ export default {
     },
   },
   methods: {
+    onClickChild (value) {
+      this.getCoupons()
+    },
     // AFFICHE LES PRODUITS
     getCoupons() {
       axios

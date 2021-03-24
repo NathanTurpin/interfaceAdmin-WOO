@@ -419,7 +419,10 @@ export default {
           },
           { headers: { Authorization: "Bearer " + this.token } }
         )
-        .then((response) => console.log(response))
+        .then(
+          (response) => console.log(response),
+          this.$emit("clicked", "someValue")
+        )
         .catch((error) => {
           console.log(error);
         });
@@ -501,13 +504,12 @@ button {
   padding: 1%;
   -webkit-border-radius: 10px 10px 10px 10px;
   border-radius: 10px 10px 10px 10px;
-  transition: transform .2s;
+  transition: transform 0.2s;
 }
 #selectedProEspace:hover {
   background: rgb(179, 178, 178);
   border: black solid;
   cursor: not-allowed;
-  transform: scale(1.1)
-
+  transform: scale(1.1);
 }
 </style>
