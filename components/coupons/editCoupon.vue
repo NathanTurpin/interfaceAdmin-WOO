@@ -124,61 +124,55 @@
                       <hr />
 
                       <!-- // PRODUITS POUR LE COUPON -->
-
-                      <label class="col-sm-2 col-form-label" for="">
-                        Produits :
-                      </label>
-                      <div class="col-sm-5">
-                        <select
-                          v-model="selectedProd"
-                          @change="selectProdVariant(selectedProd)"
-                        >
-                          <option
-                            v-for="(product, key) in products"
-                            :value="key"
-                            :key="key"
+                      <div>
+                        <label class="col-sm-2 col-form-label" for="">
+                          Produits :
+                        </label>
+                        <div class="col-sm-5">
+                          <select
+                            v-model="selectedProd"
+                            @change="getProductVariant(selectedProd)"
                           >
-                            {{ product.name }}
-                          </option>
-                        </select>
+                            <option
+                              v-for="(product, key) in products"
+                              :value="key"
+                              :key="key"
+                            >
+                              {{ product.name }}
+                            </option>
+                          </select>
 
-                        <div v-if="productsVarTest">
+                          <div v-if="variantTest">
+                            <div
+                              v-for="(proVar, key) in productsVariants"
+                              :value="key"
+                              :key="key"
+                            >
+                              <p v-for="nameProVar in proVar.attributes">
+                                <button @click="pushProdVariant(proVar)">
+                                  {{ nameProVar.name }} {{ nameProVar.option }}
+                                </button>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-sm-5">
+                          <label class="col-sm-4 col-form-label"
+                            >Selectionnés:</label
+                          >
+
                           <div
-                            v-for="(proVar, key) in productsVar"
-                            :value="key"
-                            :key="key"
+                            v-for="(prod, index) in productCoupon"
+                            :key="index"
+                            @click="suppProCoupon(index, prod)"
                           >
-                            <p v-for="nameProVar in proVar.attributes">
-                              <button @click="pushProdVariant(proVar)">
-                                {{ nameProVar.name }} {{ nameProVar.option }}
-                              </button>
-                            </p>
+                            {{ prod.name }}
+                            <span v-for="prodVar in prod.attributes">
+                              {{ prodVar.name }} {{ prodVar.option }}
+                            </spanf>
                           </div>
                         </div>
                       </div>
-                      <div class="col-sm-5">
-                        <p
-                          v-for="(prod, index) in productCoupon"
-                          :key="index"
-                          @click="suppProCoupon(index, prod)"
-                        >
-                          {{ prod.name }}
-                        </p>
-                      </div>
-                      <br />
-                      <label class="col-sm-4 col-form-label"
-                        >Selectionnés:</label
-                      >
-                      <div class="col-sm-8">
-                        <p
-                          v-for="(prod, index) in tabProdName"
-                          :key="index"
-                          @click="suppProSelected(index)"
-                        >
-                          {{ prod }}
-                        </p>
-                      </div>
-
                       <br />
 
                       <!-- PRODUITS EXCLU DU COUPON -->
@@ -322,24 +316,21 @@ export default {
       selectedCat: "",
       selectedCatExclu: "",
       products: [],
+      productsVariants: [],
+      variantTest: false,
+      lastTabProductsID: [],
+
       categories: [],
-      productsVar: [],
       tabProdName: [],
       tabProdExcluName: [],
       tabCatName: [],
       tabCatExcluName: [],
-      productsVarTest: false,
-      tabProductCouponId: [],
-      lastTab: [],
-      mergedArray: [],
       options: [
         { text: "Panier", value: "fixed_cart" },
         { text: "pourcentage", value: "percent" },
         { text: "Produit", value: "fixed_product" },
       ],
-      form: {
-        tabProd: [],
-      },
+
       coupon: {
         id: this.coupon.id,
         description: this.coupon.description,
@@ -401,142 +392,70 @@ export default {
     editCoupon(idCoupon) {
       alert(idCoupon);
       const url = window.addresse + "wp-json/wc/v3/coupons/" + idCoupon;
-      console.log(this.lastTab);
-      if (this.lastTab.length != 0) {
-        axios
-          .put(
-            url,
-            {
-              description: this.coupon.description,
-              discount_type: this.coupon.discount_type,
-              amount: this.coupon.amount,
-              date_expires: this.coupon.date_expires,
-              maximum_amount: this.coupon.maximum_amount,
-              minimum_amount: this.coupon.minimum_amount,
-              individual_use: this.coupon.individual_use,
-              exclude_sale_items: this.coupon.exclude_sale_items,
-              product_ids: this.lastTab,
-              excluded_product_ids: this.coupon.tabExcluProd,
-              product_categories: this.coupon.tabCat,
-              excluded_product_categories: this.coupon.tabCatExclu,
-              usage_limit: this.coupon.usage_limit,
-              usage_limit_per_user: this.coupon.usage_limit_per_user,
-              limit_usage_to_x_items: this.coupon.limit_usage_to_x_items,
-            },
-            { headers: { Authorization: "Bearer " + this.token } }
-          )
-          .then((response) => console.log(response))
-          .catch((error) => {
-            console.log(error);
-          });
-      } else {
-        axios
-          .put(
-            url,
-            {
-              description: this.coupon.description,
-              discount_type: this.coupon.discount_type,
-              amount: this.coupon.amount,
-              date_expires: this.coupon.date_expires,
-              maximum_amount: this.coupon.maximum_amount,
-              minimum_amount: this.coupon.minimum_amount,
-              individual_use: this.coupon.individual_use,
-              exclude_sale_items: this.coupon.exclude_sale_items,
-              product_ids: this.coupon.product_ids,
-              excluded_product_ids: this.coupon.tabExcluProd,
-              product_categories: this.coupon.tabCat,
-              excluded_product_categories: this.coupon.tabCatExclu,
-              usage_limit: this.coupon.usage_limit,
-              usage_limit_per_user: this.coupon.usage_limit_per_user,
-              limit_usage_to_x_items: this.coupon.limit_usage_to_x_items,
-            },
-            { headers: { Authorization: "Bearer " + this.token } }
-          )
-          .then((response) => console.log(response))
-          .catch((error) => {
-            console.log(error);
-          });
+      console.log("product Coupon");
+      for (let i = 0; i < this.productCoupon.length; i++) {
+        this.lastTabProductsID.push(this.productCoupon[i].id);
       }
+      console.log(this.lastTabProductsID);
+      axios
+        .put(
+          url,
+          {
+            description: this.coupon.description,
+            discount_type: this.coupon.discount_type,
+            amount: this.coupon.amount,
+            date_expires: this.coupon.date_expires,
+            maximum_amount: this.coupon.maximum_amount,
+            minimum_amount: this.coupon.minimum_amount,
+            individual_use: this.coupon.individual_use,
+            exclude_sale_items: this.coupon.exclude_sale_items,
+            product_ids: this.lastTabProductsID,
+            excluded_product_ids: this.coupon.tabExcluProd,
+            product_categories: this.coupon.tabCat,
+            excluded_product_categories: this.coupon.tabCatExclu,
+            usage_limit: this.coupon.usage_limit,
+            usage_limit_per_user: this.coupon.usage_limit_per_user,
+            limit_usage_to_x_items: this.coupon.limit_usage_to_x_items,
+          },
+          { headers: { Authorization: "Bearer " + this.token } }
+        )
+        .then((response) => console.log(response))
+        .catch((error) => {
+          console.log(error);
+        });
     },
-    pushProdVariant(nameProVar) {
-      console.log(nameProVar.id);
-      this.coupon.product_ids.push(nameProVar.id);
-      console.log(this.coupon.product_ids);
-
-      for (let i = 0; i < nameProVar.attributes.length; i++) {
-        this.tabProdName.push(nameProVar.attributes[i].option);
-      }
-    },
-    selectProdVariant(selectedProd) {
-      this.productsVar = [];
-      console.log(this.products[selectedProd].variations.length);
-      if (this.products[selectedProd].variations.length != 0) {
-        console.log("in");
-
-        this.productsVarTest = true;
-        console.log(this.products[selectedProd].variations);
-        this.products[selectedProd].variations.forEach((element) => {
-          console.log(element);
-          axios
+    async getProductVariant(product) {
+      console.log(this.products[product]);
+      if (this.products[product].variations.length != 0) {
+        this.variantTest = true;
+        this.productsVariants = [];
+        for (let j = 0; j < this.products[product].variations.length; j++) {
+          await axios
             .get(
               window.addresse +
-                "wp-json/wc/v3/products/" +
-                this.products[selectedProd].id +
+                "/wp-json/wc/v3/products/" +
+                this.products[product].id +
                 "/variations/" +
-                element,
+                this.products[product].variations[j],
               {
                 headers: {
                   Authorization: "Bearer " + this.token,
                 },
               }
             )
-            .then(
-              (response) => (
-                this.productsVar.push(response.data),
-                console.log(this.productsVar)
-              )
-            )
+            .then((response) => this.productsVariants.push(response.data))
             .catch((error) => console.log(error));
-        });
+        }
       } else {
-        this.productsVarTest = false;
-
-        console.log("out");
-
-        this.coupon.product_ids.push(this.products[selectedProd].id);
-        this.tabProdName.push(this.products[selectedProd].name);
+        this.variantTest = false;
+        this.productCoupon.push(this.products[product]);
       }
-      selectedProd = "";
     },
-    suppProSelected(index) {
-      this.coupon.product_ids.splice(index, 1),
-        this.tabProdName.splice(index, 1);
+    pushProdVariant(productVar) {
+      this.productCoupon.push(productVar);
     },
     suppProCoupon(index, prod) {
-      // console.log(index)
-      this.mergedArray = [];
-      this.lastTab = [];
-      console.log("1er tableau :");
-      console.log(this.coupon.product_ids);
-      this.tabProductCouponId = [];
-      for (let i = 0; i < this.productCoupon.length; i++) {
-        this.tabProductCouponId.push(this.productCoupon[i].id); // PUSH TOUS LES ID DES PRODUITS DU COUPON
-      }
-      if (index === this.tabProductCouponId.indexOf(prod.id)) { // SI INDEX (AU CLICK) CORRESPOND A L ID DU PROD ON ENLEVE LE PROD DES TAB
-        console.log("in");
-        console.log(prod.id);
-        this.tabProductCouponId.splice(index, 1);
-        this.coupon.product_ids.splice(index, 1);
-      }
-      console.log(this.tabProductCouponId);
-      this.mergedArray = this.coupon.product_ids.concat( // CONCATENNE LES 2 TAB
-        this.tabProductCouponId
-      );
-      this.lastTab = this.mergedArray.filter(
-        (elem, index) => this.mergedArray.indexOf(elem) === index // ON SUPP LES DOUBLONS
-      );
-      console.log("dernier tableau :");
-      console.log(this.lastTab);
+      this.productCoupon.splice(index, 1);
     },
     generalBtn() {
       (this.limiteBtn = false), (this.geneBtn = true), (this.restriBtn = false);

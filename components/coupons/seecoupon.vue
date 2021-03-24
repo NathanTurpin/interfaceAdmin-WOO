@@ -55,15 +55,23 @@
       :productCoupon="productCoupon"
       ref="modalComponent"
     />
+     <!-- <test
+      :coupon="coupon"
+      :productCoupon="productCoupon"
+      ref="modalComponent"
+    /> -->
   </div>
 </template>
 
 <script>
 import axios from "axios";
 import editCoupon from "@/components/coupons/editCoupon";
+import test from "@/components/coupons/test";
+
 export default {
   components: {
     editCoupon,
+    test
   },
   data() {
     return {
