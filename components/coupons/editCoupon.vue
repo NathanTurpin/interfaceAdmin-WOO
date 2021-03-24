@@ -124,11 +124,11 @@
                       <hr />
 
                       <!-- // PRODUITS POUR LE COUPON -->
-                      <div>
+                      <div class="produits">
                         <label class="col-sm-2 col-form-label" for="">
                           Produits :
                         </label>
-                        <div class="col-sm-5">
+                        <div class="col-sm-3">
                           <select
                             v-model="selectedProd"
                             @change="getProductVariant(selectedProd)"
@@ -156,20 +156,20 @@
                             </div>
                           </div>
                         </div>
-                        <div class="col-sm-5">
-                          <label class="col-sm-4 col-form-label"
-                            >Selectionnés:</label
-                          >
-
-                          <div
-                            v-for="(prod, index) in productCoupon"
-                            :key="index"
-                            @click="suppProCoupon(index, prod)"
-                          >
-                            {{ prod.name }}
-                            <span v-for="prodVar in prod.attributes">
-                              {{ prodVar.name }} {{ prodVar.option }}
-                            </span>
+                        <div class="col-sm-7">
+                          <label>Selectionnés:</label>
+                          <div id="selectedProducts">
+                            <div
+                              v-for="(prod, index) in productCoupon"
+                              :key="index"
+                              @click="suppProCoupon(index, prod)"
+                              id="selectedProEspace"
+                            >
+                              {{ prod.name }}
+                              <span v-for="prodVar in prod.attributes">
+                                {{ prodVar.name }} {{ prodVar.option }}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -488,5 +488,26 @@ button {
 }
 .selectProdCat div p {
   display: inline-block;
+}
+.produits {
+  display: flex;
+}
+#selectedProducts {
+  display: flex;
+}
+#selectedProEspace {
+  margin: 1%;
+  border: rgb(94, 94, 94) solid;
+  padding: 1%;
+  -webkit-border-radius: 10px 10px 10px 10px;
+  border-radius: 10px 10px 10px 10px;
+  transition: transform .2s;
+}
+#selectedProEspace:hover {
+  background: rgb(179, 178, 178);
+  border: black solid;
+  cursor: not-allowed;
+  transform: scale(1.1)
+
 }
 </style>
