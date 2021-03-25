@@ -230,52 +230,78 @@
 
                       <hr />
 
-                      <!-- CATEGORIES POUR LE COUPON -->
-                      <!-- <label class="col-sm-4 col-form-label" for="">
-                        Categories de produits :
-                      </label>
-                      <div class="col-sm-8">
-                        <select
-                          v-model="selectedCat"
-                          @change="pushCat(selectedCat)"
-                        >
-                          <option
-                            v-for="(cat, key) in categories"
-                            :value="key"
-                            :key="key"
+                      <!-- // Categories POUR LE COUPON -->
+                      <div class="produits">
+                        <label class="col-sm-2 col-form-label" for="">
+                          Categories :
+                        </label>
+                        <div class="col-sm-3">
+                          <select
+                            v-model="selectedCat"
+                            @change="pushCat(selectedCat)"
                           >
-                            {{ cat.name }}
-                          </option>
-                        </select>
+                            <option
+                              v-for="(cat, key) in categories"
+                              :value="key"
+                              :key="key"
+                            >
+                              {{ cat.name }}
+                            </option>
+                          </select>
+                        </div>
+                        <div class="col-sm-7">
+                          <label>Selectionnés:</label>
+
+                          <div id="selectedProducts">
+                            <span
+                              v-for="(cat, index) in categorieCoupon"
+                              :key="index"
+                              @click="suppCatCoupon(index)"
+                              id="selectedProEspace"
+                            >
+                              {{ cat.name }}</span
+                            >
+                          </div>
+                        </div>
                       </div>
                       <br />
-                      <p>Selectionnés:</p>
-                      <span v-for="cat in tabCatName"> {{ cat }}</span> <br /> -->
-
                       <br />
 
-                      <!-- CATEGORIES EXCLU DU COUPON -->
-                      <!-- <label class="col-sm-4 col-form-label" for="">
-                        Exclure les categories :
-                      </label>
-                      <div class="col-sm-8">
-                        <select
-                          v-model="selectedCatExclu"
-                          @change="pushCatExclu(selectedCatExclu)"
-                        >
-                          <option
-                            v-for="(cat, key) in categories"
-                            :value="key"
-                            :key="key"
+                      <!-- // categories exclu POUR LE COUPON -->
+                      <div class="produits">
+                        <label class="col-sm-2 col-form-label" for="">
+                          Categories exclu:
+                        </label>
+                        <div class="col-sm-3">
+                          <select
+                            v-model="selectedCatExclu"
+                            @change="pushCatExclu(selectedCatExclu)"
                           >
-                            {{ cat.name }}
-                          </option>
-                        </select>
+                            <option
+                              v-for="(cate, key) in categories"
+                              :value="key"
+                              :key="key"
+                            >
+                              {{ cate.name }}
+                            </option>
+                          </select>
+                        </div>
+                        <br />
+                        <div class="col-sm-7">
+                          <label>Selectionnés:</label>
+
+                          <div id="selectedProducts">
+                            <span
+                              v-for="(cate, i) in categorieCouponExclu"
+                              :key="i"
+                              @click="suppCatCouponExclu(i)"
+                              id="selectedProEspace"
+                            >
+                              {{ cate.name }}</span
+                            >
+                          </div>
+                        </div>
                       </div>
-                      <br />
-                      <p>Selectionnés:</p>
-                      <span v-for="cat in tabCatExcluName"> {{ cat }}</span>
-                      <br /> -->
                     </div>
                   </b-card-text>
 
@@ -333,7 +359,16 @@
 import axios from "axios";
 export default {
   name: "editCoupon",
-  props: ["idEditCoupon", "coupon", "productCoupon", "productCouponExclu"],
+  props: [
+    "idEditCoupon",
+    "coupon",
+    "productCoupon",
+    "productCouponExclu",
+    "categories",
+    "categorieCoupon",
+    "categorieCouponExclu",
+    "products",
+  ],
   data() {
     return {
       token: localStorage.getItem("token"),
@@ -346,18 +381,17 @@ export default {
       selectedProdExclu: "",
       selectedCat: "",
       selectedCatExclu: "",
-      products: [],
+
+      lastTabProductsID: [],
+      lastTabProductsIDExclu: [],
+      lastTabCatID: [],
+      lastTabCatExcluID: [],
+
       productsVariants: [],
       productsVariantsExclu: [],
       variantTest: false,
       variantTestExclu: false,
-      lastTabProductsID: [],
-      lastTabProductsIDExclu: [],
-      categories: [],
-      tabProdName: [],
-      tabProdExcluName: [],
-      tabCatName: [],
-      tabCatExcluName: [],
+
       options: [
         { text: "Panier", value: "fixed_cart" },
         { text: "pourcentage", value: "percent" },
@@ -382,43 +416,10 @@ export default {
       },
     };
   },
-  mounted() {
-    this.getProduct();
-    this.getCategories();
-  },
+  mounted() {},
   methods: {
     show() {
       this.$refs.modal1.show();
-    },
-    getProduct() {
-      axios
-        .get(window.addresse + "wp-json/wc/v3/products", {
-          headers: {
-            Authorization: "Bearer " + this.token,
-          },
-        })
-        .then(
-          (response) => (
-            (this.products = response.data), console.log(this.products)
-          )
-        )
-        .catch((error) => console.log(error));
-
-      // console.log(this.products.id)
-    },
-    getCategories() {
-      axios
-        .get(window.addresse + "wp-json/wc/v3/products/categories", {
-          headers: {
-            Authorization: "Bearer " + this.token,
-          },
-        })
-        .then(
-          (response) => (
-            (this.categories = response.data), console.log(this.categories)
-          )
-        )
-        .catch((error) => console.log(error));
     },
     editCoupon(idCoupon) {
       alert(idCoupon);
@@ -434,6 +435,19 @@ export default {
         this.lastTabProductsIDExclu.push(this.productCouponExclu[i].id);
       }
       console.log(this.lastTabProductsIDExclu);
+      console.log("cat Coupon");
+      this.lastTabCatID = [];
+      this.lastTabCatExcluID = [];
+      for (let i = 0; i < this.categorieCoupon.length; i++) {
+        this.lastTabCatID.push(this.categorieCoupon[i].id);
+      }
+      console.log(this.lastTabCatID);
+      console.log("cat exclu Coupon");
+
+      for (let i = 0; i < this.categorieCouponExclu.length; i++) {
+        this.lastTabCatExcluID.push(this.categorieCouponExclu[i].id);
+      }
+      console.log(this.lastTabCatExcluID);
       axios
         .put(
           url,
@@ -448,8 +462,9 @@ export default {
             exclude_sale_items: this.coupon.exclude_sale_items,
             product_ids: this.lastTabProductsID,
             excluded_product_ids: this.lastTabProductsIDExclu,
-            product_categories: this.coupon.tabCat,
-            excluded_product_categories: this.coupon.tabCatExclu,
+            product_categories: this.lastTabCatID,
+
+            excluded_product_categories: this.lastTabCatExcluID,
             usage_limit: this.coupon.usage_limit,
             usage_limit_per_user: this.coupon.usage_limit_per_user,
             limit_usage_to_x_items: this.coupon.limit_usage_to_x_items,
@@ -458,7 +473,7 @@ export default {
         )
         .then(
           (response) => console.log(response),
-          this.$emit("clicked", "someValue"),
+          this.$emit("clicked", this.validate),
           (this.restriBtn = false),
           (this.limiteBtn = false),
           (this.geneBtn = true)
@@ -532,6 +547,20 @@ export default {
     },
     suppProCouponExclu(index, prod) {
       this.productCouponExclu.splice(index, 1);
+    },
+    pushCat(selectedCat) {
+      this.categorieCoupon.push(this.categories[selectedCat]);
+      console.log(this.categorieCoupon);
+    },
+    suppCatCoupon(index) {
+      this.categorieCoupon.splice(index, 1);
+    },
+    pushCatExclu(selectedCatExclu) {
+      this.categorieCouponExclu.push(this.categories[selectedCatExclu]);
+      console.log(this.categorieCouponExclu);
+    },
+    suppCatCouponExclu(i) {
+      this.categorieCouponExclu.splice(i, 1);
     },
     generalBtn() {
       (this.limiteBtn = false), (this.geneBtn = true), (this.restriBtn = false);

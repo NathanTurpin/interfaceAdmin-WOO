@@ -54,13 +54,19 @@
       :coupon="coupon"
       :productCoupon="productCoupon"
       :productCouponExclu="productCouponExclu"
+      :categories="categories"
+      :categorieCoupon="categorieCoupon"
+      :categorieCouponExclu="categorieCouponExclu"
+      :products="products"
       ref="modalComponent"
       @clicked="onClickChild"
     />
     <!-- <test
       :coupon="coupon"
-            :productCouponExclu="productCouponExclu"
-
+      :productCouponExclu="productCouponExclu"
+      :categories="categories"
+      :categorieCoupon="categorieCoupon"
+      :categorieCouponExclu="categorieCouponExclu"
       ref="modalComponent"
     /> -->
   </div>
@@ -87,6 +93,10 @@ export default {
       productCoupon: [],
       productCouponExclu: [],
       idTab: null,
+      categories: [],
+      products: [],
+      categorieCoupon: [],
+      categorieCouponExclu: [],
     };
   },
   mounted() {
@@ -105,8 +115,8 @@ export default {
     },
   },
   methods: {
-     onClickChild(value) {
-       this.getCoupons();
+    onClickChild(value) {
+      this.getCoupons();
     },
     // AFFICHE LES PRODUITS
     getCoupons() {
@@ -122,6 +132,36 @@ export default {
           )
         )
         .catch((error) => console.log(error));
+    },
+    getCategories() {
+      axios
+        .get(window.addresse + "wp-json/wc/v3/products/categories", {
+          headers: {
+            Authorization: "Bearer " + this.token,
+          },
+        })
+        .then(
+          (response) => (
+            (this.categories = response.data), console.log(this.categories)
+          )
+        )
+        .catch((error) => console.log(error));
+    },
+    getProduct() {
+      axios
+        .get(window.addresse + "wp-json/wc/v3/products", {
+          headers: {
+            Authorization: "Bearer " + this.token,
+          },
+        })
+        .then(
+          (response) => (
+            (this.products = response.data), console.log(this.products)
+          )
+        )
+        .catch((error) => console.log(error));
+
+      // console.log(this.products.id)
     },
     // DELETE PRODUCT
     deleteProduct(idP) {
@@ -145,7 +185,10 @@ export default {
     showModal(coupon, idProduct) {
       this.productCoupon = [];
       this.productCouponExclu = [];
-
+      this.categorieCoupon = [],
+      this.categorieCouponExclu = []
+      this.getCategories();
+      this.getProduct()
       this.$refs.modalComponent.show();
       this.coupon = coupon;
       this.idTab = idProduct;
@@ -170,9 +213,9 @@ export default {
           )
           .catch((error) => console.log(error));
       }
-      for(let j=0;j<this.coupon.excluded_product_ids.length; j++){
-      console.log(this.coupon.excluded_product_ids[j])
-       axios
+      for (let j = 0; j < this.coupon.excluded_product_ids.length; j++) {
+        console.log(this.coupon.excluded_product_ids[j]);
+        axios
           .get(
             window.addresse +
               "wp-json/wc/v3/products/" +
@@ -190,7 +233,48 @@ export default {
             )
           )
           .catch((error) => console.log(error));
-
+      }
+      for (let v = 0; v < this.coupon.product_categories.length; v++) {
+        console.log(this.coupon.product_categories[v]);
+        axios
+          .get(
+            window.addresse +
+              "wp-json/wc/v3/products/categories/" +
+              this.coupon.product_categories[v],
+            {
+              headers: {
+                Authorization: "Bearer " + this.token,
+              },
+            }
+          )
+          .then(
+            (response) => (
+              this.categorieCoupon.push(response.data),
+              console.log(this.categorieCoupon)
+            )
+          )
+          .catch((error) => console.log(error));
+      }
+      for (let x = 0; x < this.coupon.excluded_product_categories.length; x++) {
+        console.log(this.coupon.excluded_product_categories[x]);
+        axios
+          .get(
+            window.addresse +
+              "wp-json/wc/v3/products/categories/" +
+              this.coupon.excluded_product_categories[x],
+            {
+              headers: {
+                Authorization: "Bearer " + this.token,
+              },
+            }
+          )
+          .then(
+            (response) => (
+              this.categorieCouponExclu.push(response.data),
+              console.log(this.categorieCouponExclu)
+            )
+          )
+          .catch((error) => console.log(error));
       }
     },
   },

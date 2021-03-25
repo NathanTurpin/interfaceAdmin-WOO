@@ -6,50 +6,57 @@
     ref="modal1"
     :title="coupon.code"
   >
-    <!-- // PRODUITS POUR LE COUPON -->
+    <!-- // Categories POUR LE COUPON -->
     <div>
-      <label class="col-sm-2 col-form-label" for=""> Produits : </label>
-      <div class="col-sm-5">
-        <select
-          v-model="selectedProdExclu"
-          @change="getProductVariantExclu(selectedProdExclu)"
-        >
-          <option v-for="(product, key) in products" :value="key" :key="key">
-            {{ product.name }}
-          </option>
-        </select>
-
-        <div v-if="variantTestExclu">
-          <div
-            v-for="(proVar, key) in productsVariantsExclu"
-            :value="key"
-            :key="key"
-          >
-            <p v-for="nameProVar in proVar.attributes">
-              <button @click="pushProdVariantExclu(proVar)">
-                {{ nameProVar.name }} {{ nameProVar.option }}
-              </button>
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="col-sm-5">
-        <label class="col-sm-4 col-form-label">Selectionnés:</label>
-
-        <div
-          v-for="(prod, index) in productCouponExclu"
-          :key="index"
-          @click="suppProCouponExclu(index, prod)"
-        >
-          {{ prod.name }} {{prod.id}}
-          <p v-for="prodVar in prod.attributes">
-            {{ prodVar.name }}
-            {{ prodVar.option }}
-
-          </p>
-        </div>
-      </div>
+    <label class="col-sm-4 col-form-label" for="">
+      Categories de produits :
+    </label>
+    <div class="col-sm-8">
+      <select v-model="selectedCat" @change="pushCat(selectedCat)">
+        <option v-for="(cat, key) in categories" :value="key" :key="key">
+          {{ cat.name }}
+        </option>
+      </select>
     </div>
+    <br />
+    <p>Selectionnés:</p>
+    <span
+      v-for="(cat, index) in categorieCoupon"
+      :key="index"
+      @click="suppCatCoupon(index)"
+    >
+      {{ cat.name }}</span
+    >
+    </div>
+    <br />
+    <br />
+
+    <!-- // categories exclu POUR LE COUPON -->
+    <div>
+    <label class="col-sm-4 col-form-label" for="">
+      Categories exclu de produits :
+    </label>
+    <div class="col-sm-8">
+      <select
+        v-model="selectedCatExclu"
+        @change="pushCatExclu(selectedCatExclu)"
+      >
+        <option v-for="(cate, key) in categories" :value="key" :key="key">
+          {{ cate.name }}
+        </option>
+      </select>
+    </div>
+    <br />
+    <p>Selectionnés:</p>
+    <span
+      v-for="(cate, i) in categorieCouponExclu"
+      :key="i"
+      @click="suppCatCouponExclu(i)"
+    >
+      {{ cate.name }}</span
+    >
+    </div>
+    <br />
     <br />
     <button @click="editCoupon()">Valider</button>
   </b-modal>
@@ -59,80 +66,52 @@
 import axios from "axios";
 export default {
   name: "test",
-  props: ["coupon", "productCouponExclu"],
+  props: ["coupon", "categories", "categorieCoupon", "categorieCouponExclu"],
   data() {
     return {
       token: localStorage.getItem("token"),
-      products: [],
-      productsVariantsExclu: [],
-      selectedProdExclu: "",
-      variantTestExclu: false,
-      lastTabProductsIDExclu: []
+      selectedCat: "",
+      lastTabCatID: [],
+      lastTabCatExcluID: [],
+
+      selectedCatExclu: "",
     };
   },
-  mounted() {
-    this.getProduct();
-  },
+  mounted() {},
   methods: {
     show() {
       this.$refs.modal1.show();
     },
-    getProduct() {
-      axios
-        .get(window.addresse + "wp-json/wc/v3/products", {
-          headers: {
-            Authorization: "Bearer " + this.token,
-          },
-        })
-        .then((response) => (this.products = response.data))
-        .catch((error) => console.log(error));
 
-      // console.log(this.products.id)
+    pushCat(selectedCat) {
+      this.categorieCoupon.push(this.categories[selectedCat]);
+      console.log(this.categorieCoupon);
     },
-    async getProductVariantExclu(product) {
-      console.log(this.products[product]);
-      if (this.products[product].variations.length != 0) {
-        this.variantTestExclu = true;
-        this.productsVariantsExclu = [];
-        for (let j = 0; j < this.products[product].variations.length; j++) {
-          await axios
-            .get(
-              window.addresse +
-                "/wp-json/wc/v3/products/" +
-                this.products[product].id +
-                "/variations/" +
-                this.products[product].variations[j],
-              {
-                headers: {
-                  Authorization: "Bearer " + this.token,
-                },
-              }
-            )
-            .then(
-              (response) => this.productsVariantsExclu.push(response.data)
-            )
-            .catch((error) => console.log(error));
-        }
-      } else {
-        this.variantTestExclu = false;
-        this.productCouponExclu.push(this.products[product]);
+    suppCatCoupon(index) {
+      this.categorieCoupon.splice(index, 1);
+    },
+    pushCatExclu(selectedCatExclu) {
+      this.categorieCouponExclu.push(this.categories[selectedCatExclu]);
+      console.log(this.categorieCouponExclu);
+    },
+    suppCatCouponExclu(i) {
+      this.categorieCouponExclu.splice(i, 1);
+    },
+    editCoupon() {
+      console.log("cat Coupon");
+      this.lastTabCatID = [];
+      this.lastTabCatExcluID = [];
+      for (let i = 0; i < this.categorieCoupon.length; i++) {
+        this.lastTabCatID.push(this.categorieCoupon[i].id);
       }
+      console.log(this.lastTabCatID);
+      console.log("cat exclu Coupon");
+
+      for (let i = 0; i < this.categorieCouponExclu.length; i++) {
+        this.lastTabCatExcluID.push(this.categorieCouponExclu[i].id);
+      }
+      console.log(this.lastTabCatExcluID);
     },
-    pushProdVariantExclu(productVar) {
-      this.productCouponExclu.push(productVar);
-    },
-    suppProCouponExclu(index, prod) {
-     
-      this.productCouponExclu.splice(index, 1);
-    },
-    editCoupon(){
-        console.log('product Coupon')
-        this.lastTabProductsIDExclu = []
-        for(let i =0;i<this.productCouponExclu.length;i++){
-        this.lastTabProductsIDExclu.push(this.productCouponExclu[i].id)
-        }
-        console.log(this.lastTabProductsIDExclu)
-    }
   },
 };
 </script>
