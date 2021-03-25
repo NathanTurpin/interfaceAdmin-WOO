@@ -176,27 +176,58 @@
                       <br />
 
                       <!-- PRODUITS EXCLU DU COUPON -->
-                      <!-- <label class="col-sm-4 col-form-label" for="">
-                        Exclure les produits :
-                      </label>
-                      <div class="col-sm-8">
-                        <select
-                          v-model="selectedProdExclu"
-                          @change="pushExcluProd(selectedProdExclu)"
-                        >
-                          <option
-                            v-for="(product, key) in products"
-                            :value="key"
-                            :key="key"
+                      <div class="produits">
+                        <label class="col-sm-2 col-form-label" for="">
+                          Produits exclu :
+                        </label>
+                        <div class="col-sm-3">
+                          <select
+                            v-model="selectedProdExclu"
+                            @change="getProductVariantExclu(selectedProdExclu)"
                           >
-                            {{ product.name }}
-                          </option>
-                        </select>
+                            <option
+                              v-for="(product, key) in products"
+                              :value="key"
+                              :key="key"
+                            >
+                              {{ product.name }}
+                            </option>
+                          </select>
+
+                          <div v-if="variantTestExclu">
+                            <div
+                              v-for="(proVar, key) in productsVariantsExclu"
+                              :value="key"
+                              :key="key"
+                            >
+                              <p v-for="nameProVar in proVar.attributes">
+                                <button @click="pushProdVariantExclu(proVar)">
+                                  {{ nameProVar.name }}
+                                  {{ nameProVar.option }}
+                                </button>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-sm-7">
+                          <label>Selectionnés:</label>
+                          <div id="selectedProducts">
+                            <div
+                              v-for="(prod, index) in productCouponExclu"
+                              :key="index"
+                              @click="suppProCouponExclu(index, prod)"
+                              id="selectedProEspace"
+                            >
+                              {{ prod.name }}
+                              <span v-for="prodVar in prod.attributes">
+                                {{ prodVar.name }}
+                                {{ prodVar.option }}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <br />
-                      <p>Selectionnés:</p>
-                      <span v-for="prod in tabProdExcluName"> {{ prod }}</span>
-                      <br /><br /> -->
+
                       <hr />
 
                       <!-- CATEGORIES POUR LE COUPON -->
@@ -302,7 +333,7 @@
 import axios from "axios";
 export default {
   name: "editCoupon",
-  props: ["idEditCoupon", "coupon", "productCoupon"],
+  props: ["idEditCoupon", "coupon", "productCoupon", "productCouponExclu"],
   data() {
     return {
       token: localStorage.getItem("token"),
@@ -317,9 +348,11 @@ export default {
       selectedCatExclu: "",
       products: [],
       productsVariants: [],
+      productsVariantsExclu: [],
       variantTest: false,
+      variantTestExclu: false,
       lastTabProductsID: [],
-
+      lastTabProductsIDExclu: [],
       categories: [],
       tabProdName: [],
       tabProdExcluName: [],
@@ -341,8 +374,6 @@ export default {
         minimum_amount: this.coupon.minimum_amount,
         individual_use: this.coupon.individual_use,
         exclude_sale_items: this.coupon.exclude_sale_items,
-        product_ids: [],
-        tabExcluProd: [this.coupon.tabExcluProd],
         tabCat: [this.coupon.tabCat],
         tabCatExclu: [this.coupon.tabCatExclu],
         usage_limit: this.coupon.usage_limit,
@@ -397,6 +428,12 @@ export default {
         this.lastTabProductsID.push(this.productCoupon[i].id);
       }
       console.log(this.lastTabProductsID);
+
+      console.log("product exclu Coupon");
+      for (let i = 0; i < this.productCouponExclu.length; i++) {
+        this.lastTabProductsIDExclu.push(this.productCouponExclu[i].id);
+      }
+      console.log(this.lastTabProductsIDExclu);
       axios
         .put(
           url,
@@ -410,7 +447,7 @@ export default {
             individual_use: this.coupon.individual_use,
             exclude_sale_items: this.coupon.exclude_sale_items,
             product_ids: this.lastTabProductsID,
-            excluded_product_ids: this.coupon.tabExcluProd,
+            excluded_product_ids: this.lastTabProductsIDExclu,
             product_categories: this.coupon.tabCat,
             excluded_product_categories: this.coupon.tabCatExclu,
             usage_limit: this.coupon.usage_limit,
@@ -421,7 +458,10 @@ export default {
         )
         .then(
           (response) => console.log(response),
-          this.$emit("clicked", "someValue")
+          this.$emit("clicked", "someValue"),
+          (this.restriBtn = false),
+          (this.limiteBtn = false),
+          (this.geneBtn = true)
         )
         .catch((error) => {
           console.log(error);
@@ -454,11 +494,44 @@ export default {
         this.productCoupon.push(this.products[product]);
       }
     },
+    async getProductVariantExclu(product) {
+      console.log(this.products[product]);
+      if (this.products[product].variations.length != 0) {
+        this.variantTestExclu = true;
+        this.productsVariantsExclu = [];
+        for (let j = 0; j < this.products[product].variations.length; j++) {
+          await axios
+            .get(
+              window.addresse +
+                "/wp-json/wc/v3/products/" +
+                this.products[product].id +
+                "/variations/" +
+                this.products[product].variations[j],
+              {
+                headers: {
+                  Authorization: "Bearer " + this.token,
+                },
+              }
+            )
+            .then((response) => this.productsVariantsExclu.push(response.data))
+            .catch((error) => console.log(error));
+        }
+      } else {
+        this.variantTestExclu = false;
+        this.productCouponExclu.push(this.products[product]);
+      }
+    },
     pushProdVariant(productVar) {
       this.productCoupon.push(productVar);
     },
+    pushProdVariantExclu(productVar) {
+      this.productCouponExclu.push(productVar);
+    },
     suppProCoupon(index, prod) {
       this.productCoupon.splice(index, 1);
+    },
+    suppProCouponExclu(index, prod) {
+      this.productCouponExclu.splice(index, 1);
     },
     generalBtn() {
       (this.limiteBtn = false), (this.geneBtn = true), (this.restriBtn = false);
@@ -494,9 +567,11 @@ button {
 }
 .produits {
   display: flex;
+  flex-wrap: wrap;
 }
 #selectedProducts {
   display: flex;
+  flex-wrap: wrap;
 }
 #selectedProEspace {
   margin: 1%;

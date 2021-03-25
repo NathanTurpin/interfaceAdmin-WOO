@@ -11,22 +11,22 @@
       <label class="col-sm-2 col-form-label" for=""> Produits : </label>
       <div class="col-sm-5">
         <select
-          v-model="selectedProd"
-          @change="getProductVariant(selectedProd)"
+          v-model="selectedProdExclu"
+          @change="getProductVariantExclu(selectedProdExclu)"
         >
           <option v-for="(product, key) in products" :value="key" :key="key">
             {{ product.name }}
           </option>
         </select>
 
-        <div v-if="variantTest">
+        <div v-if="variantTestExclu">
           <div
-            v-for="(proVar, key) in productsVariants"
+            v-for="(proVar, key) in productsVariantsExclu"
             :value="key"
             :key="key"
           >
             <p v-for="nameProVar in proVar.attributes">
-              <button @click="pushProdVariant(proVar)">
+              <button @click="pushProdVariantExclu(proVar)">
                 {{ nameProVar.name }} {{ nameProVar.option }}
               </button>
             </p>
@@ -37,9 +37,9 @@
         <label class="col-sm-4 col-form-label">Selectionnés:</label>
 
         <div
-          v-for="(prod, index) in productCoupon"
+          v-for="(prod, index) in productCouponExclu"
           :key="index"
-          @click="suppProCoupon(index, prod)"
+          @click="suppProCouponExclu(index, prod)"
         >
           {{ prod.name }} {{prod.id}}
           <p v-for="prodVar in prod.attributes">
@@ -59,16 +59,15 @@
 import axios from "axios";
 export default {
   name: "test",
-  props: ["coupon", "productCoupon"],
+  props: ["coupon", "productCouponExclu"],
   data() {
     return {
       token: localStorage.getItem("token"),
       products: [],
-      productsVariants: [],
-      selectedProd: "",
-      tabProdName: [],
-      variantTest: false,
-      lastTabProductsID: []
+      productsVariantsExclu: [],
+      selectedProdExclu: "",
+      variantTestExclu: false,
+      lastTabProductsIDExclu: []
     };
   },
   mounted() {
@@ -90,11 +89,11 @@ export default {
 
       // console.log(this.products.id)
     },
-    async getProductVariant(product) {
+    async getProductVariantExclu(product) {
       console.log(this.products[product]);
       if (this.products[product].variations.length != 0) {
-        this.variantTest = true;
-        this.productsVariants = [];
+        this.variantTestExclu = true;
+        this.productsVariantsExclu = [];
         for (let j = 0; j < this.products[product].variations.length; j++) {
           await axios
             .get(
@@ -110,28 +109,29 @@ export default {
               }
             )
             .then(
-              (response) => this.productsVariants.push(response.data)
+              (response) => this.productsVariantsExclu.push(response.data)
             )
             .catch((error) => console.log(error));
         }
       } else {
-        this.variantTest = false;
-        this.productCoupon.push(this.products[product]);
+        this.variantTestExclu = false;
+        this.productCouponExclu.push(this.products[product]);
       }
     },
-    pushProdVariant(productVar) {
-      this.productCoupon.push(productVar);
+    pushProdVariantExclu(productVar) {
+      this.productCouponExclu.push(productVar);
     },
-    suppProCoupon(index, prod) {
+    suppProCouponExclu(index, prod) {
      
-      this.productCoupon.splice(index, 1);
+      this.productCouponExclu.splice(index, 1);
     },
     editCoupon(){
         console.log('product Coupon')
-        for(let i =0;i<this.productCoupon.length;i++){
-        this.lastTabProductsID.push(this.productCoupon[i].id)
+        this.lastTabProductsIDExclu = []
+        for(let i =0;i<this.productCouponExclu.length;i++){
+        this.lastTabProductsIDExclu.push(this.productCouponExclu[i].id)
         }
-        console.log(this.lastTabProductsID)
+        console.log(this.lastTabProductsIDExclu)
     }
   },
 };

@@ -53,12 +53,14 @@
     <editCoupon
       :coupon="coupon"
       :productCoupon="productCoupon"
+      :productCouponExclu="productCouponExclu"
       ref="modalComponent"
       @clicked="onClickChild"
     />
-     <!-- <test
+    <!-- <test
       :coupon="coupon"
-      :productCoupon="productCoupon"
+            :productCouponExclu="productCouponExclu"
+
       ref="modalComponent"
     /> -->
   </div>
@@ -72,7 +74,7 @@ import test from "@/components/coupons/test";
 export default {
   components: {
     editCoupon,
-    test
+    test,
   },
   data() {
     return {
@@ -83,6 +85,7 @@ export default {
       coupon: [],
       componentEditCoupon: false,
       productCoupon: [],
+      productCouponExclu: [],
       idTab: null,
     };
   },
@@ -102,8 +105,8 @@ export default {
     },
   },
   methods: {
-    onClickChild (value) {
-      this.getCoupons()
+     onClickChild(value) {
+       this.getCoupons();
     },
     // AFFICHE LES PRODUITS
     getCoupons() {
@@ -141,17 +144,24 @@ export default {
     // EDIT PRODUCT
     showModal(coupon, idProduct) {
       this.productCoupon = [];
+      this.productCouponExclu = [];
+
       this.$refs.modalComponent.show();
       this.coupon = coupon;
       this.idTab = idProduct;
       console.log();
       for (let i = 0; i < this.coupon.product_ids.length; i++) {
         axios
-          .get(window.addresse + "wp-json/wc/v3/products/" + this.coupon.product_ids[i], {
-            headers: {
-              Authorization: "Bearer " + this.token,
-            },
-          })
+          .get(
+            window.addresse +
+              "wp-json/wc/v3/products/" +
+              this.coupon.product_ids[i],
+            {
+              headers: {
+                Authorization: "Bearer " + this.token,
+              },
+            }
+          )
           .then(
             (response) => (
               this.productCoupon.push(response.data),
@@ -160,7 +170,28 @@ export default {
           )
           .catch((error) => console.log(error));
       }
-    
+      for(let j=0;j<this.coupon.excluded_product_ids.length; j++){
+      console.log(this.coupon.excluded_product_ids[j])
+       axios
+          .get(
+            window.addresse +
+              "wp-json/wc/v3/products/" +
+              this.coupon.excluded_product_ids[j],
+            {
+              headers: {
+                Authorization: "Bearer " + this.token,
+              },
+            }
+          )
+          .then(
+            (response) => (
+              this.productCouponExclu.push(response.data),
+              console.log(this.productCouponExclu)
+            )
+          )
+          .catch((error) => console.log(error));
+
+      }
     },
   },
 };
