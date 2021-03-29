@@ -120,10 +120,16 @@
                     ></b-form-input>
                   </b-form-group>
                   <!-- QTE STOCK -->
-                  <input type="checkbox" id="checkbox" v-model="form.manageStock" />
-                  <label for="checkbox" v-if="!form.manageStock ">Gérer le stock</label>
+                  <input
+                    type="checkbox"
+                    id="checkbox"
+                    v-model="form.manageStock"
+                  />
+                  <label for="checkbox" v-if="!form.manageStock"
+                    >Gérer le stock</label
+                  >
                   <b-form-group
-                  v-if="form.manageStock"
+                    v-if="form.manageStock"
                     id="input-group-2"
                     label="Quantité de stock :"
                     label-for="input-2"
@@ -226,12 +232,18 @@
                   <b-button
                     id="button"
                     @click="addProduct"
-                    v-if="termes[0] && selectedAttributes"
+                    v-if="termes[0] && selectedAttributes != null"
                     pill
                     variant="outline-secondary"
                     >Choisir</b-button
                   >
-                  <p v-if="selectedAttributes && !termes[0]">En chargement</p>
+                  <p
+                    v-if="
+                      selectedAttributes != null && !termes[0] && attributeID
+                    "
+                  >
+                    En chargement
+                  </p>
 
                   <p v-if="newProductId && !produitBool">OK</p>
                   <p v-if="!newProductId && produitBool">
@@ -258,7 +270,7 @@
     </section>
     <section class="variable"></section>
     <section v-show="selectedProduct === 'Simple'">
-      <button  @click="addProduct">add</button>
+      <button @click="addProduct">add</button>
     </section>
   </div>
 </template>
@@ -310,6 +322,7 @@ export default {
       uploadPercentage: 0,
       selectedFile: null,
       token: localStorage.getItem("token"),
+      status: "",
     };
   },
   mounted() {
@@ -344,7 +357,8 @@ export default {
         );
     },
     addProduct() {
-      console.log(this.form.manageStock)
+      this.status = "";
+      console.log(this.form.manageStock);
       this.produitBool = true;
       let termesName = [];
       for (let i = 0; i < this.termes.length; i++) {
@@ -357,83 +371,96 @@ export default {
         this.form.type = "variable";
       }
 
-      if(this.form.idIMG){axios
-        .post(
-          window.addresse + "wp-json/wc/v3/products",
-          {
-            name: this.form.name,
-            description: this.form.description,
-            short_description: this.form.short_description,
-            regular_price: this.form.price,
-            manage_stock: this.form.manageStock,
-            sale_price: this.form.salePrice,
-            stock_quantity: this.form.stock_quantity,
-            cross_sell_ids: this.crossSellId,
-            upsell_ids: this.upSellId,
-            categories: this.categoriesId,
-            type: this.form.type,
-            attributes: [
-              {
-                id: this.attributeID.id,
-                name: this.attributeID.name,
-                visible: true,
-                variation: true,
-                options: termesName,
-              },
-            ],
-            images: [
-              {
-                id: this.form.idIMG,
-              },
-            ],
-          },
-          { headers: { Authorization: "Bearer " + this.token } }
-        )
-        .then(
-          (response) => (
-            (this.newProductId = response.data.id),
-            console.log(response),
-            (this.produitBool = false)
+      if (this.form.idIMG) {
+        axios
+          .post(
+            window.addresse + "wp-json/wc/v3/products",
+            {
+              name: this.form.name,
+              description: this.form.description,
+              short_description: this.form.short_description,
+              regular_price: this.form.price,
+              manage_stock: this.form.manageStock,
+              sale_price: this.form.salePrice,
+              stock_quantity: this.form.stock_quantity,
+              cross_sell_ids: this.crossSellId,
+              upsell_ids: this.upSellId,
+              categories: this.categoriesId,
+              type: this.form.type,
+              attributes: [
+                {
+                  id: this.attributeID.id,
+                  name: this.attributeID.name,
+                  visible: true,
+                  variation: true,
+                  options: termesName,
+                },
+              ],
+              images: [
+                {
+                  id: this.form.idIMG,
+                },
+              ],
+            },
+            { headers: { Authorization: "Bearer " + this.token } }
           )
-        );}
-        else{
-          axios
-        .post(
-          window.addresse + "wp-json/wc/v3/products",
-          {
-            name: this.form.name,
-            description: this.form.description,
-            short_description: this.form.short_description,
-            regular_price: this.form.price,
-            manage_stock: this.form.manageStock,
-            sale_price: this.form.salePrice,
-            stock_quantity: this.form.stock_quantity,
-            cross_sell_ids: this.crossSellId,
-            upsell_ids: this.upSellId,
-            categories: this.categoriesId,
-            type: this.form.type,
-            attributes: [
-              {
-                id: this.attributeID.id,
-                name: this.attributeID.name,
-                visible: true,
-                variation: true,
-                options: termesName,
-              },
-            ]
-          },
-          { headers: { Authorization: "Bearer " + this.token } }
-        )
-        .then(
-          (response) => (
-            (this.newProductId = response.data.id),
-            console.log(response),
-            (this.produitBool = false)
+          .then(
+            (response) => (
+              (this.newProductId = response.data.id),
+              console.log(response),
+              (this.produitBool = false),
+              this.validationAddProduct(response.status)
+            )
+          );
+      } else {
+        axios
+          .post(
+            window.addresse + "wp-json/wc/v3/products",
+            {
+              name: this.form.name,
+              description: this.form.description,
+              short_description: this.form.short_description,
+              regular_price: this.form.price,
+              manage_stock: this.form.manageStock,
+              sale_price: this.form.salePrice,
+              stock_quantity: this.form.stock_quantity,
+              cross_sell_ids: this.crossSellId,
+              upsell_ids: this.upSellId,
+              categories: this.categoriesId,
+              type: this.form.type,
+              attributes: [
+                {
+                  id: this.attributeID.id,
+                  name: this.attributeID.name,
+                  visible: true,
+                  variation: true,
+                  options: termesName,
+                },
+              ],
+            },
+            { headers: { Authorization: "Bearer " + this.token } }
           )
-        );
-        }
-      
+          .then(
+            (response) => (
+              (this.newProductId = response.data.id),
+              console.log(response),
+              (this.produitBool = false),
+              this.validationAddProduct(response.status)
+            )
+          );
+      }
     },
+    validationAddProduct(status) {
+      if (status === 201) {
+        alert("produit ajouté");
+        this.getProduct();
+        this.getcategorie();
+        this.getAttributes();
+      } else {
+        alert("erreur");
+      }
+    },
+
     getProduct() {
       axios
         .get(window.addresse + "wp-json/wc/v3/products", {
@@ -478,6 +505,7 @@ export default {
         .catch((error) => console.log(error));
     },
     async getTermes(id) {
+      this.termes = [];
       await axios
         .get(
           window.addresse +
